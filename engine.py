@@ -14,9 +14,9 @@ class Engine:
             self.cedict = json.load(f)
 
     def add_characters(self, input):
-        chinese_pattern = re.compile(r"[\u4E00-\u9FFF]")
-        if bool(re.search(r"[\u4E00-\u9FFF]", input)):
-            self.query = chinese_pattern.findall(input)
+        chinese_pattern = re.compile(r"[\u4E00-\u9FFF]")  # Chinese unicode range
+        if bool(re.search(r"[\u4E00-\u9FFF]", input)):  # Check for chinese input
+            self.query = chinese_pattern.findall(input)  # Get chinese from query
         else:
             print("No characters found! Please input in chinese!")
             return
@@ -49,6 +49,20 @@ class Engine:
                         **self.cedict[word],
                         "unlocked": datetime.now().isoformat(),
                     }
+
+    def remove_character(self, char):
+        removed = {"removed_char": char, "removed_words": []}
+
+        if char not in self.bank:
+            print("Character is not in the bank.")
+            return removed
+        else:
+            for word in set(self.beastiary.keys()):
+                if char in word:
+                    removed["removed_words"].append(word)
+                    del self.beastiary[word]
+            del self.bank[char]
+            return removed
 
 
 if __name__ == "__main__":
