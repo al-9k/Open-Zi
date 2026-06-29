@@ -64,6 +64,30 @@ class Engine:
             del self.bank[char]
             return removed
 
+    def search(self, query):
+        result_list = {}
+        # TODO: allow searching using latin/pinyin keyboard, compare versus a pinyin table
+        if query == "":
+            result_list = self.beastiary
+            return result_list
+
+        else:
+            for word in set(self.beastiary.keys()):
+                if set(query).issubset(word):
+                    result_list[word] = {"type": "word", **self.cedict[word]}
+
+            for char in set(self.bank.keys()):
+                if char in query:
+                    result_list[char] = {"type": "character", **self.bank[char]}
+            return result_list
+
+    def get_stats(self):
+        # TODO: Our data needs to have HSK levels, for now the HSK key will be empty.
+        stats = {}
+        history = {}
+
+        return
+
 
 if __name__ == "__main__":
     e = Engine()
