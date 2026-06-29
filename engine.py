@@ -1,5 +1,6 @@
 import json
 import re
+from collections import defaultdict
 from datetime import datetime
 
 
@@ -31,7 +32,7 @@ class Engine:
             else:
                 self.bank[char] = {
                     **self.cedict[char],
-                    "added": datetime.now().isoformat(),
+                    "date": datetime.now().isoformat(),
                 }
         self._sync_words()
 
@@ -47,7 +48,7 @@ class Engine:
                 if set(word).issubset(set(self.bank.keys())):
                     self.beastiary[word] = {
                         **self.cedict[word],
-                        "unlocked": datetime.now().isoformat(),
+                        "date": datetime.now().isoformat(),
                     }
 
     def remove_character(self, char):
@@ -74,19 +75,37 @@ class Engine:
         else:
             for word in set(self.beastiary.keys()):
                 if set(query).issubset(word):
-                    result_list[word] = {"type": "word", **self.cedict[word]}
+                    result_list[word] = {"type": "w", **self.cedict[word]}  # w for word
 
             for char in set(self.bank.keys()):
                 if char in query:
-                    result_list[char] = {"type": "character", **self.bank[char]}
+                    result_list[char] = {
+                        "type": "c",
+                        **self.bank[char],
+                    }  # c for character
             return result_list
 
     def get_stats(self):
         # TODO: Our data needs to have HSK levels, for now the HSK key will be empty.
-        stats = {}
-        history = {}
+        char_history = defaultdict(list)
+        word_history = defaultdict(list)
+        stats = {
+            "Char timeline": char_history,
+            "Word timeline": word_history,
+            "Char Count": len(self.bank.keys()),
+            "Combination count": len(self.beastiary.keys()),
+            "Word Net count": len(self.bank.keys()) + len(self.beastiary.keys()),
+        }
 
-        return
+        for char, data in self.bank.items():
+            date = data.get("date", "unknown")
+            char_history[date].append(char)
+
+        for word, data in self.beastiary.items():
+            date = data.get("date", "unknown")
+            word_history[date].append(word)
+
+        return stats
 
 
 if __name__ == "__main__":
