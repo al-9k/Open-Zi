@@ -85,6 +85,24 @@ class Engine:
                     }  # c for character
             return result_list
 
+    def save(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(
+                {"bank": self.bank, "beastiary": self.beastiary},
+                f,
+                ensure_ascii=False,
+                indent=2,
+            )
+
+    def load(self, path):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self.bank = data.get("bank", {})
+            self.beastiary = data.get("beastiary", {})
+        except FileNotFoundError:
+            pass  # no save file yet, start fresh
+
     def get_stats(self):
         # TODO: Our data needs to have HSK levels, for now the HSK key will be empty.
         char_history = defaultdict(list)
@@ -111,7 +129,28 @@ class Engine:
 if __name__ == "__main__":
     e = Engine()
     e.load_dictionary("sample_dict.json")
-    e.bank["好"] = e.cedict["好"]
-    print("Input some characters...")
-    input = input()
-    e.add_characters(input)
+
+    print("=== Add 你好 ===")
+    e.add_characters("你好")
+
+    print("\n=== Add 人大 ===")
+    e.add_characters("人大")
+
+    print("\n=== Unlocked Words ===")
+    for word in sorted(e.beastiary.keys()):
+        print(f"  {word} — {e.beastiary[word].get('pinyin', '')}")
+
+    print("\n=== Stats ===")
+    print(e.get_stats())
+
+    print("\n=== Save State ===")
+    e.save("test_save.json")
+    print("Saved to test_save.json")
+
+    print("\n=== Search '人' ===")
+    print(e.search("人"))
+
+    print("\n=== Remove 好 ===")
+    result = e.remove_character("好")
+    print(f"Removed: {result['removed_char']}")
+    print(f"Affected words: {result['removed_words']}")
