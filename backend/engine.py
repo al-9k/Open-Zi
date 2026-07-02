@@ -75,23 +75,26 @@ class Engine:
 
     def search(self, query):
         result_list = {}
-        # TODO: allow searching using latin/pinyin keyboard, compare versus a pinyin table
         if query == "":
-            result_list = self.beastiary
-            return result_list
+            return self.beastiary
 
-        else:
-            for word in set(self.beastiary.keys()):
-                if set(query).issubset(word):
-                    result_list[word] = {"type": "w", **self.cedict[word]}  # w for word
+        q = query.lower()
 
-            for char in set(self.bank.keys()):
-                if char in query:
-                    result_list[char] = {
-                        "type": "c",
-                        **self.bank[char],
-                    }  # c for character
-            return result_list
+        # Search unlocked words — match by word, pinyin, or definition
+        for word, data in self.beastiary.items():
+            pinyin = data.get("pinyin", "").lower()
+            definition = data.get("definition", "").lower()
+            if q in word or q in pinyin or q in definition:
+                result_list[word] = {"type": "w", **data}
+
+        # Search characters in bank — match by char, pinyin, or definition
+        for char, data in self.bank.items():
+            pinyin = data.get("pinyin", "").lower()
+            definition = data.get("definition", "").lower()
+            if q in char or q in pinyin or q in definition:
+                result_list[char] = {"type": "c", **data}
+
+        return result_list
 
     def save(self, path):
         with open(path, "w", encoding="utf-8") as f:
