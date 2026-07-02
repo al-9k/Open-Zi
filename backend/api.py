@@ -5,6 +5,15 @@ from engine import Engine
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from pydantic import BaseModel
+
+
+class AddCharsRequest(BaseModel):
+    text: str
+
+    class Config:
+        json_schema_extra = {"example": {"text": "你好世界"}}
+
 
 app = FastAPI()
 engine = Engine()
@@ -34,8 +43,8 @@ def stats():  # ← function name doesn't matter
 
 
 @app.post("/api/characters/add")
-def add_characters(data: dict):
-    return engine.add_characters(data["text"])
+def add_characters(data: AddCharsRequest):
+    return engine.add_characters(data.text)
 
 
 @app.post("/api/characters/remove")
