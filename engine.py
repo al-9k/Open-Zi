@@ -15,26 +15,32 @@ class Engine:
             self.cedict = json.load(f)
 
     def add_characters(self, input):
+        added, existed, not_found = [], [], []
         chinese_pattern = re.compile(r"[\u4E00-\u9FFF]")  # Chinese unicode range
         if bool(re.search(r"[\u4E00-\u9FFF]", input)):  # Check for chinese input
             self.query = chinese_pattern.findall(input)  # Get chinese from query
         else:
             print("No characters found! Please input in chinese!")
-            return
+            not_found.append(input)
+            return {"added": added, "existed": existed, "not_found": not_found}
 
         for char in self.query:
             # char must be valid or not in bank
             if char in self.bank:
                 print(char, " is already in bank.")
+                existed.append(char)
                 continue
             elif char not in self.cedict:
                 print(char, "is archaic and not supported.")
+                not_found.append(char)
             else:
                 self.bank[char] = {
                     **self.cedict[char],
                     "date": datetime.now().isoformat(),
                 }
+                added.append(char)
         self._sync_words()
+        return {"added": added, "existed": existed, "not_found": not_found}
 
     def _sync_words(self):
         for word in set(self.beastiary.keys()):  # Clean up dictionary post removal
