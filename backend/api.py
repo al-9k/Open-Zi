@@ -37,9 +37,9 @@ def refresh():
     return {"status": "ok"}
 
 
-@app.get("/api/stats")
-def stats():
-    return engine.get_stats()
+@app.get("/api/stats")  # ← decorator: HTTP method + URL path
+def stats():  # ← function name doesn't matter
+    return engine.get_stats()  # ← return a dict, FastAPI converts to JSON
 
 
 @app.post("/api/characters/add")
@@ -88,19 +88,3 @@ def export_anki():
     for row in rows:
         writer.writerow([row["front"], row["back"], row["hsk"]])
     return Response(content=output.getvalue(), media_type="text/csv")
-
-
-@app.post("/api/toggle-learnt")
-def toggle_learnt(data: dict):
-    engine.toggle_learnt(data["type"], data["key"])
-    return {"status": "ok"}
-
-
-@app.get("/api/characters/unlock-preview")
-def unlock_preview(char: str = ""):
-    return engine.get_unlock_preview(char)
-
-
-@app.get("/api/characters/sorted")
-def characters_sorted(offset: int = 0, limit: int = 250):
-    return engine.get_characters_sorted(offset, limit)
