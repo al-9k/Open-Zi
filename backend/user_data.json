@@ -1,0 +1,69 @@
+{
+  "bank": {
+    "你": {
+      "pinyin": "ni3",
+      "definition": "you (informal, as opposed to courteous 您[nin2])",
+      "hsk": 1,
+      "date": "2026-07-03T18:20:21.931559"
+    },
+    "大": {
+      "pinyin": "da4",
+      "definition": "big; large; great; older (than another person); eldest (as in 大姐[da4 jie3]); greatly; freely; fully; (dialect) father; (dialect) uncle (father's brother)",
+      "hsk": 1,
+      "date": "2026-07-03T18:20:41.311099"
+    },
+    "好": {
+      "pinyin": "hao3",
+      "definition": "good; appropriate; proper; all right!; (before a verb) easy to; (before a verb) good to; (before an adjective for exclamatory effect) so; (verb complement indicating completion); (of two people) close; on intimate terms; (after a personal pronoun) hello",
+      "hsk": 1,
+      "date": "2026-07-03T18:20:41.311238"
+    },
+    "人": {
+      "pinyin": "ren2",
+      "definition": "person; people; CL:個|个[ge4],位[wei4],名[ming2]",
+      "hsk": 1,
+      "date": "2026-07-03T18:20:41.312783"
+    }
+  },
+  "beastiary": {
+    "好好": {
+      "pinyin": "hao3 hao3",
+      "definition": "well; carefully; nicely; properly",
+      "hsk": 3,
+      "date": "2026-07-03T18:20:41.327765"
+    },
+    "你好": {
+      "pinyin": "ni3 hao3",
+      "definition": "hello; hi",
+      "date": "2026-07-03T18:20:41.330835"
+    },
+    "大人": {
+      "pinyin": "da4 ren5",
+      "definition": "adult; grownup; title of respect toward superiors",
+      "hsk": 2,
+      "date": "2026-07-03T18:20:41.341751"
+    },
+    "人大": {
+      "pinyin": "Ren2 da4",
+      "definition": "Renmin University of China (abbr. for 中國人民大學|中国人民大学[Zhong1 guo2 Ren2 min2 Da4 xue2])",
+      "date": "2026-07-03T18:20:41.362204"
+    },
+    "人人": {
+      "pinyin": "ren2 ren2",
+      "definition": "everyone; every person",
+      "date": "2026-07-03T18:20:41.364978"
+    },
+    "好人": {
+      "pinyin": "hao3 ren2",
+      "definition": "good person; healthy person; person who tries not to offend anyone, even at the expense of principle",
+      "hsk": 2,
+      "date": "2026-07-03T18:20:41.372956"
+    },
+    "大大": {
+      "pinyin": "da4 da4",
+      "definition": "greatly; enormously; (dialect) dad; uncle",
+      "hsk": 2,
+      "date": "2026-07-03T18:20:41.377984"
+    }
+  }
+}
