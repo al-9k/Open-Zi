@@ -81,7 +81,7 @@
                   onclick={() => openDictionary(word, true)}
                 >
                   <span class="word-char">{word}</span>
-                  <span class="word-meta">
+                  <span class="word-pinyin-cell">
                     {#each splitPronunciations(data.pinyin, data.definition) as pron, pi}
                       {#if pi === 0}
                         {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
@@ -89,7 +89,12 @@
                           <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
                           <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
                         {/each}
-                        <span class="word-dash">—</span>
+                      {/if}
+                    {/each}
+                  </span>
+                  <span class="word-def-cell">
+                    {#each splitPronunciations(data.pinyin, data.definition) as pron, pi}
+                      {#if pi === 0}
                         <span class="word-meanings">
                           {pron.definition.split('; ').filter(Boolean).join(' • ')}
                         </span>
@@ -203,9 +208,10 @@
   }
 
   .word-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 90px 160px 1fr;
+    gap: 18px;
     align-items: baseline;
-    gap: 14px;
     width: 100%;
     padding: 10px 18px;
     background: none;
@@ -228,20 +234,27 @@
     font-family: 'Ma Shan Zheng', cursive;
     font-size: 26px;
     color: #2d2d2d;
-    min-width: 55px;
-    flex-shrink: 0;
+    line-height: 1.2;
   }
 
-  .word-meta {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0;
+  .word-pinyin-cell {
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    line-height: 1.6;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .word-def-cell {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    overflow: hidden;
+    display: flex;
+    align-items: baseline;
+    gap: 0;
     min-width: 0;
-    flex: 1;
   }
 
   .word-pinyin-colored {
@@ -258,12 +271,6 @@
     white-space: nowrap;
   }
 
-  .word-dash {
-    color: #cccccc;
-    margin: 0 5px;
-    flex-shrink: 0;
-  }
-
   .word-meanings {
     color: #555555;
     overflow: hidden;
@@ -273,7 +280,7 @@
 
   .word-more {
     font-size: 10px;
-    color: #bbbbbb;
+    color: #e87d7d;
     font-style: italic;
     margin-left: 6px;
     flex-shrink: 0;

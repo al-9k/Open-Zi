@@ -164,7 +164,7 @@
                 }}
               >
                 <span class="word-text">{word}</span>
-                <span class="word-meta">
+                <span class="word-pinyin-cell">
                   {#each splitPronunciations(wData.pinyin, wData.definition) as pron, pi}
                     {#if pi === 0}
                       {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
@@ -172,7 +172,12 @@
                         <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
                         <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
                       {/each}
-                      <span class="word-dash">—</span>
+                    {/if}
+                  {/each}
+                </span>
+                <span class="word-def-cell">
+                  {#each splitPronunciations(wData.pinyin, wData.definition) as pron, pi}
+                    {#if pi === 0}
                       <span class="word-meanings">
                         {pron.definition.split('; ').filter(Boolean).join(' • ')}
                       </span>
@@ -399,9 +404,10 @@
   }
 
   .word-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 80px 150px 1fr;
+    gap: 16px;
     align-items: baseline;
-    gap: 12px;
     padding: 8px 10px;
     background: none;
     border: none;
@@ -419,40 +425,41 @@
     font-family: 'Ma Shan Zheng', cursive;
     font-size: 24px;
     color: #2d2d2d;
-    min-width: 48px;
-    flex-shrink: 0;
+    line-height: 1.2;
   }
 
-  .word-meta {
+  .word-pinyin-cell {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .word-def-cell {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow: hidden;
     display: flex;
     align-items: baseline;
-    flex-wrap: wrap;
     gap: 0;
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    line-height: 1.6;
     min-width: 0;
-    flex: 1;
   }
 
   .word-pinyin-colored {
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12px;
     margin-right: 1px;
     white-space: nowrap;
   }
 
   .word-pinyin-num {
-    font-size: 10px;
+    font-size: 9px;
     color: #bbbbbb;
-    margin-right: 5px;
+    margin-right: 4px;
     white-space: nowrap;
-  }
-
-  .word-dash {
-    color: #cccccc;
-    margin: 0 5px;
-    flex-shrink: 0;
   }
 
   .word-meanings {
@@ -463,10 +470,10 @@
   }
 
   .word-more {
-    font-size: 10px;
-    color: #bbbbbb;
+    font-size: 9px;
+    color: #e87d7d;
     font-style: italic;
-    margin-left: 6px;
+    margin-left: 4px;
     flex-shrink: 0;
     white-space: nowrap;
   }
