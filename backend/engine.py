@@ -16,18 +16,15 @@ class Engine:
 
     def add_characters(self, input):
         added, existed, not_found = [], [], []
-        chinese_pattern = re.compile(r"[\u4E00-\u9FFF]")  # Chinese unicode range
-        if bool(re.search(r"[\u4E00-\u9FFF]", input)):  # Check for chinese input
-            self.query = chinese_pattern.findall(input)  # Get chinese from query
+        chinese_pattern = re.compile(r"[\u4E00-\u9FFF]")
+        if bool(re.search(r"[\u4E00-\u9FFF]", input)):
+            self.query = chinese_pattern.findall(input)
         else:
             print("No characters found! Please input in chinese!")
             not_found.append(input)
             return {"added": added, "existed": existed, "not_found": not_found}
 
-        for char in set(
-            self.query
-        ):  # we cast into a set so that we do not process duplicates like in 宝宝
-            # char must be valid or not in bank
+        for char in set(self.query):
             if char in self.bank:
                 print(char, " is already in bank.")
                 existed.append(char)
@@ -45,14 +42,14 @@ class Engine:
         return {"added": added, "existed": existed, "not_found": not_found}
 
     def _sync_words(self):
-        for word in set(self.beastiary.keys()):  # Clean up dictionary post removal
+        for word in set(self.beastiary.keys()):
             if not set(word).issubset(set(self.bank.keys())):
                 del self.beastiary[word]
 
-        for word in set(self.cedict.keys()):  # Sync step
-            if len(word) == 1:  # skip single characters, already in bank
+        for word in set(self.cedict.keys()):
+            if len(word) == 1:
                 continue
-            else:  # check if a word is made of characters available in the bank
+            else:
                 if set(word).issubset(set(self.bank.keys())):
                     self.beastiary[word] = {
                         **self.cedict[word],
@@ -80,14 +77,12 @@ class Engine:
 
         q = query.lower()
 
-        # Search unlocked words — match by word, pinyin, or definition
         for word, data in self.beastiary.items():
             pinyin = data.get("pinyin", "").lower()
             definition = data.get("definition", "").lower()
             if q in word or q in pinyin or q in definition:
                 result_list[word] = {"type": "w", **data}
 
-        # Search characters in bank — match by char, pinyin, or definition
         for char, data in self.bank.items():
             pinyin = data.get("pinyin", "").lower()
             definition = data.get("definition", "").lower()
@@ -112,14 +107,15 @@ class Engine:
             self.bank = data.get("bank", {})
             self.beastiary = data.get("beastiary", {})
         except FileNotFoundError:
-            pass  # no save file yet, start fresh
+            pass
 
     def get_stats(self):
-        # TODO: Our data needs to have HSK levels, for now the HSK key will be empty.
         char_history = defaultdict(list)
         word_history = defaultdict(list)
         hsk_chars = defaultdict(int)
         hsk_words = defaultdict(int)
+        learnt_chars = 0
+        learnt_words = 0
 
         for char, data in self.bank.items():
             date = data.get("date", "unknown")
@@ -127,6 +123,8 @@ class Engine:
             hsk = data.get("hsk")
             if hsk:
                 hsk_chars[hsk] += 1
+            if data.get("learnt"):
+                learnt_chars += 1
 
         for word, data in self.beastiary.items():
             date = data.get("date", "unknown")
@@ -134,16 +132,67 @@ class Engine:
             hsk = data.get("hsk")
             if hsk:
                 hsk_words[hsk] += 1
+            if data.get("learnt"):
+                learnt_words += 1
+
+        total_freq = sum(d.get("frequency", 0) for d in self.cedict.values())
+        bank_freq = sum(d.get("frequency", 0) for d in self.bank.values())
+        coverage = round((bank_freq / total_freq) * 100, 1) if total_freq else 0
 
         return {
             "char_count": len(self.bank),
             "word_count": len(self.beastiary),
             "dictionary_count": len(self.bank) + len(self.beastiary),
+            "learnt_chars": learnt_chars,
+            "learnt_words": learnt_words,
+            "coverage": coverage,
             "hsk_chars": dict(hsk_chars),
             "hsk_words": dict(hsk_words),
             "char_timeline": dict(char_history),
             "word_timeline": dict(word_history),
         }
+
+    def toggle_learnt(self, type, key):
+        if type == "c" and key in self.bank:
+            self.bank[key]["learnt"] = not self.bank[key].get("learnt", False)
+        elif type == "w" and key in self.beastiary:
+            self.beastiary[key]["learnt"] = not self.beastiary[key].get("learnt", False)
+
+    def get_unlock_preview(self, char):
+        if char not in self.cedict or char in self.bank:
+            return {"words": 0, "coverage_gain": 0}
+        bank_set = set(self.bank.keys()) | {char}
+        new_words = 0
+        new_freq = 0
+        total_freq = sum(d.get("frequency", 0) for d in self.cedict.values())
+        for word in self.cedict:
+            if len(word) < 2:
+                continue
+            if char not in word:
+                continue
+            if set(word).issubset(bank_set):
+                if word not in self.beastiary:
+                    new_words += 1
+                    new_freq += self.cedict[word].get("frequency", 0)
+        gain = round((new_freq / total_freq) * 100, 1) if total_freq else 0
+        return {"words": new_words, "coverage_gain": gain}
+
+    def get_characters_sorted(self, offset=0, limit=250):
+        items = []
+        for char, data in self.cedict.items():
+            if len(char) != 1:
+                continue
+            items.append(
+                {
+                    "char": char,
+                    "pinyin": data.get("pinyin", ""),
+                    "hsk": data.get("hsk"),
+                    "frequency": data.get("frequency", 0),
+                    "in_bank": char in self.bank,
+                }
+            )
+        items.sort(key=lambda x: x["frequency"], reverse=True)
+        return items[offset : offset + limit]
 
     def export_anki(self):
         rows = []
@@ -164,33 +213,3 @@ class Engine:
                 }
             )
         return rows
-
-
-if __name__ == "__main__":
-    e = Engine()
-    e.load_dictionary("sample_dict.json")
-
-    print("=== Add 你好 ===")
-    e.add_characters("你好")
-
-    print("\n=== Add 人大 ===")
-    e.add_characters("人大")
-
-    print("\n=== Unlocked Words ===")
-    for word in sorted(e.beastiary.keys()):
-        print(f"  {word} — {e.beastiary[word].get('pinyin', '')}")
-
-    print("\n=== Stats ===")
-    print(e.get_stats())
-
-    print("\n=== Save State ===")
-    e.save("test_save.json")
-    print("Saved to test_save.json")
-
-    print("\n=== Search '人' ===")
-    print(e.search("人"))
-
-    print("\n=== Remove 好 ===")
-    result = e.remove_character("好")
-    print(f"Removed: {result['removed_char']}")
-    print(f"Affected words: {result['removed_words']}")
