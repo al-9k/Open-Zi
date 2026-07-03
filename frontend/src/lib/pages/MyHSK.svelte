@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { beastiaryDict, openDictionary } from '$lib/stores';
   import { api } from '$lib/api';
-  import { numericToAccented } from '$lib/utils';
+  import { numericToAccented, splitPronunciations, getToneNumber, getToneColor } from '$lib/utils';
   import type { BeastiaryDict, WordData } from '$lib/types';
 
   let words = $state<BeastiaryDict>({});
@@ -81,10 +81,24 @@
                   onclick={() => openDictionary(word, true)}
                 >
                   <span class="word-char">{word}</span>
-                  <span class="word-pinyin">
-                    {numericToAccented(data.pinyin.split(';')[0].trim())}
+                  <span class="word-meta">
+                    {#each splitPronunciations(data.pinyin, data.definition) as pron, pi}
+                      {#if pi === 0}
+                        {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                          {#if si > 0}{' '}{/if}
+                          <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                          <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+                        {/each}
+                        <span class="word-dash">—</span>
+                        <span class="word-meanings">
+                          {pron.definition.split('; ').filter(Boolean).join(' • ')}
+                        </span>
+                        {#if splitPronunciations(data.pinyin, data.definition).length > 1}
+                          <span class="word-more">+{splitPronunciations(data.pinyin, data.definition).length - 1} more</span>
+                        {/if}
+                      {/if}
+                    {/each}
                   </span>
-                  <span class="word-def">{data.definition}</span>
                 </button>
               {/each}
             </div>
@@ -190,7 +204,7 @@
 
   .word-row {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 14px;
     width: 100%;
     padding: 10px 18px;
@@ -215,22 +229,54 @@
     font-size: 26px;
     color: #2d2d2d;
     min-width: 55px;
+    flex-shrink: 0;
   }
 
-  .word-pinyin {
-    font-size: 12px;
-    color: #888888;
-    min-width: 90px;
+  .word-meta {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0;
     font-family: 'Inter', sans-serif;
-  }
-
-  .word-def {
     font-size: 13px;
-    color: #555555;
-    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    min-width: 0;
     flex: 1;
+  }
+
+  .word-pinyin-colored {
+    font-weight: 600;
+    font-size: 13px;
+    margin-right: 1px;
+    white-space: nowrap;
+  }
+
+  .word-pinyin-num {
+    font-size: 10px;
+    color: #bbbbbb;
+    margin-right: 5px;
+    white-space: nowrap;
+  }
+
+  .word-dash {
+    color: #cccccc;
+    margin: 0 5px;
+    flex-shrink: 0;
+  }
+
+  .word-meanings {
+    color: #555555;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .word-more {
+    font-size: 10px;
+    color: #bbbbbb;
+    font-style: italic;
+    margin-left: 6px;
+    flex-shrink: 0;
     white-space: nowrap;
   }
 

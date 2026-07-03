@@ -20,6 +20,13 @@
       // No save file yet, that's fine
     }
 
+    // Refresh all entries against latest dictionary data
+    try {
+      await api.refresh();
+    } catch {
+      // Refresh is best-effort
+    }
+
     // Fetch all initial data
     try {
       const [chars, words, statsData] = await Promise.all([

@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { numericToAccented, hskToChineseNumeral } from '$lib/utils';
+  import { hskToChineseNumeral } from '$lib/utils';
 
   let {
     character,
-    pinyin,
     hsk,
     frequencyRank,
     inBank = true,
@@ -11,19 +10,12 @@
     onclick,
   }: {
     character: string;
-    pinyin?: string;
     hsk?: number | null;
     frequencyRank?: number | null;
     inBank?: boolean;
     rotate?: number;
     onclick?: () => void;
   } = $props();
-
-  let displayPinyin = $derived(
-    pinyin
-      ? numericToAccented(pinyin.split(';')[0].trim())
-      : ''
-  );
 
   let hskNumeral = $derived(hskToChineseNumeral(hsk ?? null));
 </script>
@@ -47,10 +39,6 @@
   {/if}
 
   <span class="character">{character}</span>
-
-  {#if displayPinyin}
-    <span class="pinyin">{displayPinyin}</span>
-  {/if}
 
   {#if frequencyRank}
     <span class="freq-rank">#{frequencyRank}</span>
@@ -160,15 +148,7 @@
     font-size: 72px;
     color: #2d2d2d;
     line-height: 1;
-    margin-top: 8px;
-  }
-
-  .pinyin {
-    font-size: 11px;
-    font-weight: 400;
-    color: #888888;
-    line-height: 1;
-    margin-top: 2px;
+    margin-top: 14px;
   }
 
   .freq-rank {

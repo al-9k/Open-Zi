@@ -1,13 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { stats as statsStore } from '$lib/stores';
+  import { stats as statsStore, bankDict, beastiaryDict, openDictionary, navigateTo } from '$lib/stores';
   import { api } from '$lib/api';
   import { numericToAccented, hskToChineseNumeral } from '$lib/utils';
   import ClipboardCard from '$lib/components/ClipboardCard.svelte';
   import Button3D from '$lib/components/Button3D.svelte';
   import LinedInput from '$lib/components/LinedInput.svelte';
   import type { StatsData } from '$lib/types';
-  import { openDictionary, navigateTo } from '$lib/stores';
 
   let statsData = $state<StatsData | null>(null);
   let addText = $state('');
@@ -43,12 +42,11 @@
       addMsgType = 'success';
       addText = '';
       await loadStats();
-      // Also refresh character/word stores
       const [chars, words] = await Promise.all([api.getCharacters(), api.getWords()]);
-      const { bankDict, beastiaryDict } = await import('$lib/stores');
       bankDict.set(chars);
       beastiaryDict.set(words);
     } catch (e) {
+      console.error('Add characters failed:', e);
       addMessage = 'Failed to add characters';
       addMsgType = 'error';
     }
@@ -59,12 +57,15 @@
   }
 
   async function handleLoad() {
-    await api.load();
-    await loadStats();
-    const [chars, words] = await Promise.all([api.getCharacters(), api.getWords()]);
-    const { bankDict, beastiaryDict } = await import('$lib/stores');
-    bankDict.set(chars);
-    beastiaryDict.set(words);
+    try {
+      await api.load();
+      await loadStats();
+      const [chars, words] = await Promise.all([api.getCharacters(), api.getWords()]);
+      bankDict.set(chars);
+      beastiaryDict.set(words);
+    } catch (e) {
+      console.error('Load failed:', e);
+    }
   }
 
   function handleAddKeydown(e: KeyboardEvent) {

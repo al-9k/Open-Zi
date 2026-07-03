@@ -114,3 +114,21 @@ export function splitPronunciations(
 
   return pairs;
 }
+
+/** Extract tone number from numeric pinyin syllable (e.g. "wei2" → 2) */
+export function getToneNumber(numericSyllable: string): number {
+  const match = numericSyllable.match(/[1-5]$/);
+  return match ? parseInt(match[0], 10) : 5;
+}
+
+/** Get a distinct color for each Mandarin tone */
+export function getToneColor(tone: number): string {
+  const colors: Record<number, string> = {
+    1: "#e87d7d", // coral — high level
+    2: "#d4953a", // amber — rising
+    3: "#6bb5b0", // teal — dipping
+    4: "#5b7dbf", // blue — falling
+    5: "#bbbbbb", // grey — neutral
+  };
+  return colors[tone] || colors[5];
+}

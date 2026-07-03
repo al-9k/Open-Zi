@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { dictionaryTarget, navigateTo, bankDict, beastiaryDict } from '$lib/stores';
   import { api } from '$lib/api';
-  import { numericToAccented, splitPronunciations } from '$lib/utils';
+  import { numericToAccented, splitPronunciations, getToneNumber, getToneColor } from '$lib/utils';
   import Button3D from '$lib/components/Button3D.svelte';
   import type { CharacterData, WordData, BankDict, BeastiaryDict } from '$lib/types';
 
@@ -42,7 +42,6 @@
 
       if (isWord) {
         wordData = words[text] ?? null;
-        // Check if any char from word is in bank
         inBank = [...text].some((c) => c in chars);
       } else {
         charData = chars[text] ?? null;
@@ -113,14 +112,16 @@
         <span class="entry-char">{text}</span>
         <div class="entry-meta">
           <span class="entry-pinyin">
-            {numericToAccented(data.pinyin.split(';')[0].trim())}
+            {#each data.pinyin.split(';').map(p => p.trim()) as p, i}
+              <span style="color: {getToneColor(getToneNumber(p))}">{numericToAccented(p)}</span>{#if i < data.pinyin.split(';').length - 1} <span class="text-ink-light">/</span> {/if}
+            {/each}
           </span>
           {#if data.hsk}
             <span class="hsk-stamp">HSK {data.hsk}</span>
           {/if}
-          {'frequency_rank' in data && data.frequency_rank
-            ? `<span class="freq-badge">#${data.frequency_rank}</span>`
-            : ''}
+          {#if 'frequency_rank' in data && data.frequency_rank}
+            <span class="freq-badge">#{data.frequency_rank}</span>
+          {/if}
         </div>
       </div>
 
@@ -128,15 +129,23 @@
       <div class="definitions-section">
         <h3 class="section-label">Definitions</h3>
         {#if pronPairs.length > 0}
-          <div class="def-list">
-            {#each pronPairs as pair}
-              <div class="def-item">
-                <span class="def-pinyin">{numericToAccented(pair.pinyin)}</span>
-                <span class="def-sep">—</span>
-                <span class="def-text">{pair.definition}</span>
-              </div>
-            {/each}
-          </div>
+          <ol class="def-list">
+          {#each pronPairs as pair, i}
+            <li class="def-item">
+              <span class="def-pinyin-group">
+                {#each pair.pinyin.split(' ').filter(Boolean) as syl, si}
+                  {#if si > 0}{' '}{/if}
+                  <span class="def-pinyin" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                  <span class="def-numeric">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+                {/each}
+              </span>
+              <span class="def-dash">—</span>
+              <span class="def-meanings">
+                {pair.definition.split('; ').filter(Boolean).join(' • ')}
+              </span>
+            </li>
+          {/each}
+        </ol>
         {:else}
           <p class="def-text">{data.definition}</p>
         {/if}
@@ -155,10 +164,24 @@
                 }}
               >
                 <span class="word-text">{word}</span>
-                <span class="word-pinyin">
-                  {numericToAccented(wData.pinyin.split(';')[0].trim())}
+                <span class="word-meta">
+                  {#each splitPronunciations(wData.pinyin, wData.definition) as pron, pi}
+                    {#if pi === 0}
+                      {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                        {#if si > 0}{' '}{/if}
+                        <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                        <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+                      {/each}
+                      <span class="word-dash">—</span>
+                      <span class="word-meanings">
+                        {pron.definition.split('; ').filter(Boolean).join(' • ')}
+                      </span>
+                      {#if splitPronunciations(wData.pinyin, wData.definition).length > 1}
+                        <span class="word-more">+{splitPronunciations(wData.pinyin, wData.definition).length - 1} more</span>
+                      {/if}
+                    {/if}
+                  {/each}
                 </span>
-                <span class="word-def">{wData.definition}</span>
               </button>
             {/each}
           </div>
@@ -267,7 +290,12 @@
     width: fit-content;
   }
 
-
+  .freq-badge {
+    display: inline-block;
+    font-size: 11px;
+    color: #bbbbbb;
+    font-family: 'Inter', sans-serif;
+  }
 
   .section-label {
     font-family: 'Inter', sans-serif;
@@ -284,29 +312,71 @@
   }
 
   .def-list {
+    list-style: none;
+    counter-reset: def-counter;
+    padding: 0;
+    margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
   }
 
   .def-item {
     display: flex;
     align-items: baseline;
-    gap: 6px;
     flex-wrap: wrap;
+    gap: 0;
+    min-width: 0;
+  }
+
+  .def-item::before {
+    counter-increment: def-counter;
+    content: counter(def-counter) '. ';
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #bbbbbb;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+
+  .def-pinyin-group {
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .def-pinyin {
     font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    color: #6bb5b0;
+    font-size: 15px;
+    font-weight: 600;
+    margin-right: 1px;
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  .def-sep {
+  .def-numeric {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    color: #bbbbbb;
+    margin-right: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .def-dash {
     color: #cccccc;
     font-size: 14px;
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+
+  .def-meanings {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #555555;
+    line-height: 1.6;
+    min-width: 0;
   }
 
   .def-text {
@@ -330,7 +400,7 @@
 
   .word-row {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 12px;
     padding: 8px 10px;
     background: none;
@@ -350,22 +420,54 @@
     font-size: 24px;
     color: #2d2d2d;
     min-width: 48px;
+    flex-shrink: 0;
   }
 
-  .word-pinyin {
-    font-size: 12px;
-    color: #888888;
-    min-width: 80px;
+  .word-meta {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0;
     font-family: 'Inter', sans-serif;
-  }
-
-  .word-def {
     font-size: 13px;
-    color: #555555;
-    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    min-width: 0;
     flex: 1;
+  }
+
+  .word-pinyin-colored {
+    font-weight: 600;
+    font-size: 13px;
+    margin-right: 1px;
+    white-space: nowrap;
+  }
+
+  .word-pinyin-num {
+    font-size: 10px;
+    color: #bbbbbb;
+    margin-right: 5px;
+    white-space: nowrap;
+  }
+
+  .word-dash {
+    color: #cccccc;
+    margin: 0 5px;
+    flex-shrink: 0;
+  }
+
+  .word-meanings {
+    color: #555555;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .word-more {
+    font-size: 10px;
+    color: #bbbbbb;
+    font-style: italic;
+    margin-left: 6px;
+    flex-shrink: 0;
     white-space: nowrap;
   }
 

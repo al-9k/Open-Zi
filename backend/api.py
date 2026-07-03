@@ -30,8 +30,8 @@ def startup():
 def refresh():
     for char in list(engine.bank.keys()):
         engine.bank[char] = {
-            **engine.cedict.get(char, engine.bank[char]),
             **engine.bank[char],
+            **engine.cedict.get(char, engine.bank[char]),
         }
     engine._sync_words()
     return {"status": "ok"}

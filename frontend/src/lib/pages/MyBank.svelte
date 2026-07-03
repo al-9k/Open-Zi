@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { bankDict, beastiaryDict, openDictionary } from '$lib/stores';
   import { api } from '$lib/api';
-  import { numericToAccented } from '$lib/utils';
+  import { numericToAccented, getToneNumber, getToneColor, splitPronunciations } from '$lib/utils';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
   import Button3D from '$lib/components/Button3D.svelte';
   import LinedInput from '$lib/components/LinedInput.svelte';
@@ -47,7 +47,8 @@
       const [chars, words] = await Promise.all([api.getCharacters(), api.getWords()]);
       bankDict.set(chars);
       beastiaryDict.set(words);
-    } catch {
+    } catch (e) {
+      console.error('Add characters failed:', e);
       addMessage = 'Failed to add';
     }
   }
@@ -174,7 +175,6 @@
           <div class="card-wrapper">
             <CharacterCard
               character={charData.char}
-              pinyin={charData.pinyin}
               hsk={charData.hsk}
               frequencyRank={charData.frequency_rank}
               inBank={true}
@@ -227,10 +227,24 @@
             onclick={() => openDictionary(wordData.word, true)}
           >
             <span class="word-char">{wordData.word}</span>
-            <span class="word-pinyin">
-              {numericToAccented(wordData.pinyin.split(';')[0].trim())}
+            <span class="word-meta">
+              {#each splitPronunciations(wordData.pinyin, wordData.definition) as pron, pi}
+                {#if pi === 0}
+                  {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                    {#if si > 0}{' '}{/if}
+                    <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                    <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+                  {/each}
+                  <span class="word-dash">—</span>
+                  <span class="word-meanings">
+                    {pron.definition.split('; ').filter(Boolean).join(' • ')}
+                  </span>
+                  {#if splitPronunciations(wordData.pinyin, wordData.definition).length > 1}
+                    <span class="word-more">+{splitPronunciations(wordData.pinyin, wordData.definition).length - 1} more</span>
+                  {/if}
+                {/if}
+              {/each}
             </span>
-            <span class="word-def">{wordData.definition}</span>
           </button>
         {/each}
       </div>
@@ -451,7 +465,7 @@
 
   .word-row {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 14px;
     padding: 10px 16px;
     background: none;
@@ -476,22 +490,52 @@
     font-size: 28px;
     color: #2d2d2d;
     min-width: 60px;
+    flex-shrink: 0;
   }
 
-  .word-pinyin {
-    font-size: 12px;
-    color: #888888;
-    min-width: 90px;
+  .word-meta {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0;
     font-family: 'Inter', sans-serif;
-  }
-
-  .word-def {
     font-size: 13px;
-    color: #555555;
-    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    min-width: 0;
     flex: 1;
+  }
+
+  .word-pinyin-colored {
+    font-weight: 600;
+    font-size: 13px;
+    margin-right: 1px;
+  }
+
+  .word-pinyin-num {
+    font-size: 10px;
+    color: #bbbbbb;
+    margin-right: 5px;
+  }
+
+  .word-dash {
+    color: #cccccc;
+    margin: 0 5px;
+    flex-shrink: 0;
+  }
+
+  .word-meanings {
+    color: #555555;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .word-more {
+    font-size: 10px;
+    color: #bbbbbb;
+    font-style: italic;
+    margin-left: 6px;
+    flex-shrink: 0;
     white-space: nowrap;
   }
 

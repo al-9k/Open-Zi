@@ -1,14 +1,12 @@
 <script lang="ts">
   let {
-    value = '',
+    value = $bindable(''),
     placeholder = '',
-    oninput,
     onkeydown,
     disabled = false,
   }: {
     value?: string;
     placeholder?: string;
-    oninput?: (e: Event & { currentTarget: HTMLInputElement }) => void;
     onkeydown?: (e: KeyboardEvent) => void;
     disabled?: boolean;
   } = $props();
@@ -17,11 +15,10 @@
 <div class="lined-input-wrapper">
   <input
     type="text"
-    {value}
+    bind:value
     {placeholder}
     {disabled}
-    oninput={oninput}
-    onkeydown={onkeydown}
+    {onkeydown}
     class="lined-input"
   />
   <div class="lines"></div>

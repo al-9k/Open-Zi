@@ -1,16 +1,38 @@
 <script lang="ts">
   import { api } from '$lib/api';
+  import { bankDict, beastiaryDict, stats as statsStore } from '$lib/stores';
   import Button3D from '$lib/components/Button3D.svelte';
 
   let saveMsg = $state('');
   let loadMsg = $state('');
+  let refreshMsg = $state('');
+
+  async function handleRefresh() {
+    try {
+      await api.refresh();
+      const [chars, words, stats] = await Promise.all([
+        api.getCharacters(),
+        api.getWords(),
+        api.getStats(),
+      ]);
+      bankDict.set(chars);
+      beastiaryDict.set(words);
+      statsStore.set(stats);
+      refreshMsg = 'Dictionary refreshed!';
+      setTimeout(() => (refreshMsg = ''), 2000);
+    } catch (e) {
+      console.error('Refresh failed:', e);
+      refreshMsg = 'Refresh failed';
+    }
+  }
 
   async function handleSave() {
     try {
       await api.save();
       saveMsg = 'Saved!';
       setTimeout(() => (saveMsg = ''), 2000);
-    } catch {
+    } catch (e) {
+      console.error('Save failed:', e);
       saveMsg = 'Save failed';
     }
   }
@@ -18,6 +40,7 @@
   async function handleLoad() {
     try {
       await api.load();
+      await api.refresh();
       loadMsg = 'Loaded! Reloading data...';
       // Refresh all data
       const [chars, words, stats] = await Promise.all([
@@ -25,12 +48,12 @@
         api.getWords(),
         api.getStats(),
       ]);
-      const { bankDict, beastiaryDict, stats: statsStore } = await import('$lib/stores');
       bankDict.set(chars);
       beastiaryDict.set(words);
       statsStore.set(stats);
       setTimeout(() => (loadMsg = ''), 2000);
-    } catch {
+    } catch (e) {
+      console.error('Load failed:', e);
       loadMsg = 'Load failed';
     }
   }
@@ -59,6 +82,7 @@
     <div class="btn-row">
       <Button3D size="md" variant="coral" onclick={handleSave}>Save</Button3D>
       <Button3D size="md" variant="teal" onclick={handleLoad}>Load</Button3D>
+      <Button3D size="md" variant="coral" onclick={handleRefresh}>Refresh Dictionary</Button3D>
       <Button3D size="md" variant="ghost" onclick={handleExport}>Export to Anki</Button3D>
     </div>
     {#if saveMsg}
@@ -66,6 +90,9 @@
     {/if}
     {#if loadMsg}
       <p class="msg info">{loadMsg}</p>
+    {/if}
+    {#if refreshMsg}
+      <p class="msg success">{refreshMsg}</p>
     {/if}
   </div>
 
