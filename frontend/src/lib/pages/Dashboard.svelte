@@ -6,6 +6,7 @@
   import ClipboardCard from '$lib/components/ClipboardCard.svelte';
   import Button3D from '$lib/components/Button3D.svelte';
   import LinedInput from '$lib/components/LinedInput.svelte';
+  import CharacterCard from '$lib/components/CharacterCard.svelte';
   import type { StatsData } from '$lib/types';
 
   let statsData = $state<StatsData | null>(null);
@@ -73,7 +74,7 @@
   }
 
   // Get recently added chars from timeline
-  function getRecentChars(): { char: string; date: string }[] {
+  function getRecentChars(): { char: string; hsk: number | null; frequencyRank: number | null }[] {
     if (!statsData?.char_timeline) return [];
     const entries: { char: string; date: string }[] = [];
     for (const [date, chars] of Object.entries(statsData.char_timeline)) {
@@ -82,7 +83,11 @@
       }
     }
     entries.sort((a, b) => b.date.localeCompare(a.date));
-    return entries.slice(0, 10);
+    return entries.slice(0, 10).map(e => ({
+      char: e.char,
+      hsk: $bankDict[e.char]?.hsk ?? null,
+      frequencyRank: $bankDict[e.char]?.frequency_rank ?? null,
+    }));
   }
 
   const hskLevels = [1, 2, 3, 4, 5, 6];
@@ -168,12 +173,15 @@
       <h2 class="section-title">Recently Added</h2>
       <div class="recent-grid">
         {#each getRecentChars() as entry}
-          <button
-            class="recent-char"
+          {@const rot = ((entry.char.charCodeAt(0) * 7) % 3) - 1}
+          <CharacterCard
+            character={entry.char}
+            hsk={entry.hsk}
+            frequencyRank={entry.frequencyRank}
+            inBank={true}
+            rotate={rot}
             onclick={() => openDictionary(entry.char, false)}
-          >
-            <span class="recent-char-text">{entry.char}</span>
-          </button>
+          />
         {/each}
       </div>
       {#if getRecentChars().length === 0}
@@ -309,32 +317,7 @@
   .recent-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .recent-char {
-    width: 52px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #faf7f2;
-    border: 1px solid #e8e3da;
-    border-radius: 2px;
-    cursor: pointer;
-    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.06);
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-
-  .recent-char:hover {
-    transform: translateY(-2px);
-    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.10);
-  }
-
-  .recent-char-text {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 26px;
-    color: #2d2d2d;
+    gap: 12px;
   }
 
   .empty-text {

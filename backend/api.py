@@ -88,3 +88,23 @@ def export_anki():
     for row in rows:
         writer.writerow([row["front"], row["back"], row["hsk"]])
     return Response(content=output.getvalue(), media_type="text/csv")
+
+
+@app.get("/api/dictionary")
+def get_dictionary():
+    """Return all cedict characters sorted by frequency rank."""
+    items = []
+    for char, data in engine.cedict.items():
+        if len(char) == 1:  # characters only, not words
+            items.append(
+                {
+                    "character": char,
+                    "pinyin": data.get("pinyin", ""),
+                    "definition": data.get("definition", ""),
+                    "hsk": data.get("hsk"),
+                    "frequency": data.get("frequency"),
+                    "frequency_rank": data.get("frequency_rank"),
+                }
+            )
+    items.sort(key=lambda x: x["frequency_rank"] or 99999)
+    return items
