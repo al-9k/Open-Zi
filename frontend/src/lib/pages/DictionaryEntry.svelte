@@ -4,6 +4,7 @@
   import { api } from '$lib/api';
   import { numericToAccented, splitPronunciations, getToneNumber, getToneColor } from '$lib/utils';
   import Button3D from '$lib/components/Button3D.svelte';
+  import Speak from '$lib/components/Speak.svelte';
   import type { CharacterData, WordData, BankDict, BeastiaryDict } from '$lib/types';
 
   let text = $state('');
@@ -50,6 +51,11 @@
 
   async function loadData() {
     loading = true;
+    charData = null;
+    wordData = null;
+    componentChars = [];
+    unlockedWords = [];
+    removeMsg = '';
     try {
       const [chars, words] = await Promise.all([
         api.getCharacters(),
@@ -193,6 +199,7 @@
             {#each data.pinyin.split(';').map(p => p.trim()) as p, i}
               <span style="color: {getToneColor(getToneNumber(p))}">{numericToAccented(p)}</span>{#if i < data.pinyin.split(';').length - 1} <span class="text-ink-light">/</span> {/if}
             {/each}
+            <Speak text={text} />
           </span>
           {#if data.hsk}
             <span class="hsk-stamp">HSK {data.hsk}</span>

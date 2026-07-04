@@ -39,6 +39,13 @@
   function clearSearch() {
     searchQuery = '';
   }
+
+  function pronounceLogo() {
+    const u = new SpeechSynthesisUtterance('Open字');
+    u.lang = 'zh-CN';
+    u.rate = 0.8;
+    speechSynthesis.speak(u);
+  }
 </script>
 
 <aside class="sidebar">
@@ -54,14 +61,6 @@
 
   <!-- Sidebar content -->
   <div class="sidebar-content">
-    <!-- App title -->
-    <div class="app-title">
-      <span class="title-open">Open</span>
-      <div class="title-seal">
-        <span class="title-zi">字</span>
-      </div>
-    </div>
-
     <!-- Search bar -->
     <div class="search-area">
       <div class="search-input-wrap">
@@ -86,10 +85,11 @@
 
     <!-- Navigation tab dividers -->
     <nav class="nav-tabs">
-      {#each navItems as item}
+      {#each navItems.slice(0, 4) as item}
         <button
           class="nav-tab"
           class:active={$currentPage === item.page}
+          style="background: {['#fff176','#f48fb1','#81d4fa','#ce93d8'][navItems.indexOf(item)]}; box-shadow: 0 4px 0 {['#d4c940','#c8708e','#5aa8d4','#a870b4'][navItems.indexOf(item)]}, 0 6px 10px rgba(0,0,0,0.20);"
           onclick={() => {
             navigateTo(item.page);
           }}
@@ -98,10 +98,33 @@
             <span class="coral-dot"></span>
           {/if}
           <span class="nav-label">{item.label}</span>
-
         </button>
       {/each}
     </nav>
+
+    <!-- Logo above Settings -->
+    <div class="app-title">
+      <span class="title-open">Open</span>
+      <div class="title-seal" onclick={pronounceLogo} role="button" tabindex="0" title="Pronounce" onkeydown={(e) => e.key === 'Enter' && pronounceLogo()}>
+        <span class="title-zi">字</span>
+      </div>
+    </div>
+
+    <!-- Settings button (standalone, bottom) -->
+    {#each navItems.slice(4) as item}
+      <button
+        class="nav-tab settings-tab"
+        class:active={$currentPage === item.page}
+        onclick={() => {
+          navigateTo(item.page);
+        }}
+      >
+        {#if $currentPage === item.page}
+          <span class="coral-dot"></span>
+        {/if}
+        <span class="nav-label">{item.label}</span>
+      </button>
+    {/each}
   </div>
 </aside>
 
@@ -208,9 +231,9 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 4px 0;
+    padding: 4px 0 2px;
     margin-top: 6px;
-    margin-bottom: 4px;
+    margin-bottom: -10px;
   }
 
   .title-open {
@@ -230,6 +253,17 @@
     background: #c41e3a;
     border-radius: 8px;
     box-shadow: 0 4px 0 #8b1525, 0 6px 10px rgba(0,0,0,0.25);
+    cursor: pointer;
+    transition: all 0.1s ease;
+  }
+
+  .title-seal:hover {
+    filter: brightness(0.92);
+  }
+
+  .title-seal:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #8b1525, 0 2px 4px rgba(0,0,0,0.10);
   }
 
   .title-zi {
@@ -336,14 +370,6 @@
     overflow: hidden;
   }
 
-  .nav-tab:last-child { margin-top: auto; }
-
-  .nav-tab:nth-child(1) { background: #fff176; box-shadow: 0 4px 0 #d4c940, 0 6px 10px rgba(0,0,0,0.20); }
-  .nav-tab:nth-child(2) { background: #f48fb1; box-shadow: 0 4px 0 #c8708e, 0 6px 10px rgba(0,0,0,0.20); }
-  .nav-tab:nth-child(3) { background: #81d4fa; box-shadow: 0 4px 0 #5aa8d4, 0 6px 10px rgba(0,0,0,0.20); }
-  .nav-tab:nth-child(4) { background: #ce93d8; box-shadow: 0 4px 0 #a870b4, 0 6px 10px rgba(0,0,0,0.20); }
-  .nav-tab:nth-child(5) { background: #3a6b4a; box-shadow: 0 4px 0 #2a5038, 0 6px 10px rgba(0,0,0,0.20); color: #d0e8d4; }
-
   .nav-tab:hover {
     filter: brightness(0.95);
   }
@@ -358,7 +384,14 @@
     color: #222;
   }
 
-  .nav-tab:nth-child(5).active {
+  .settings-tab {
+    background: #3a6b4a;
+    box-shadow: 0 4px 0 #2a5038, 0 6px 10px rgba(0,0,0,0.20);
+    color: #d0e8d4;
+    margin-top: auto;
+  }
+
+  .settings-tab.active {
     color: #fff;
   }
 
