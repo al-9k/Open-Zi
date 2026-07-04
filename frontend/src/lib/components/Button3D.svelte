@@ -23,10 +23,10 @@
 
   const variantClasses = {
     coral:
-      'bg-coral text-white border-[#c96a6a] shadow-[0_4px_0_#c96a6a,0_6px_10px_rgba(0,0,0,0.15)] active:shadow-[0_1px_0_#c96a6a,0_2px_4px_rgba(0,0,0,0.10)] active:translate-y-[3px]',
-    teal: 'bg-teal text-white border-[#5a9e99] shadow-[0_4px_0_#5a9e99,0_6px_10px_rgba(0,0,0,0.15)] active:shadow-[0_1px_0_#5a9e99,0_2px_4px_rgba(0,0,0,0.10)] active:translate-y-[3px]',
+      'bg-coral text-white border-[#c96a6a] shadow-[0_4px_0_#c96a6a,0_6px_10px_rgba(0,0,0,0.25)] active:shadow-[0_1px_0_#c96a6a,0_2px_4px_rgba(0,0,0,0.15)] active:translate-y-[3px]',
+    teal: 'bg-teal text-white border-[#5a9e99] shadow-[0_4px_0_#5a9e99,0_6px_10px_rgba(0,0,0,0.25)] active:shadow-[0_1px_0_#5a9e99,0_2px_4px_rgba(0,0,0,0.15)] active:translate-y-[3px]',
     ghost:
-      'bg-white/70 text-ink border border-border hover:bg-white shadow-none active:shadow-none',
+      'bg-white/10 text-ink border border-white/15 hover:bg-white/20 shadow-none active:shadow-none',
   };
 </script>
 

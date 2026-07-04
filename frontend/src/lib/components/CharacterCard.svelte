@@ -52,10 +52,13 @@
     justify-content: center;
     width: 90px;
     height: 90px;
-    background: #faf7f2;
+    background: #f5f0e3;
     border: 1px solid #e8e3da;
     border-radius: 2px;
-    box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0 1px 0 #e0d8c8,
+      1px 2px 6px rgba(0, 0, 0, 0.20),
+      2px 4px 12px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
     transform: rotate(var(--card-rotate, 0deg));
@@ -65,7 +68,10 @@
 
   .character-card:hover {
     transform: translateY(-3px) rotate(var(--card-rotate, 0deg));
-    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.12);
+    box-shadow:
+      0 1px 0 #e0d8c8,
+      2px 4px 10px rgba(0, 0, 0, 0.25),
+      4px 8px 18px rgba(0, 0, 0, 0.10);
   }
 
   /* Lanyard — top left */

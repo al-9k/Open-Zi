@@ -13,6 +13,7 @@
   let inBank = $state(false);
   let loading = $state(true);
   let removeMsg = $state('');
+  let componentChars = $state<{ char: string; pinyin: string; definition: string; hsk: number | null }[]>([]);
 
   // Find unlocked words containing this character
   let unlockedWords = $state<{ word: string; data: WordData }[]>([]);
@@ -43,6 +44,21 @@
       if (isWord) {
         wordData = words[text] ?? null;
         inBank = [...text].some((c) => c in chars);
+
+        // Load component characters
+        const comps: typeof componentChars = [];
+        for (const c of text) {
+          const bankEntry = chars[c];
+          if (bankEntry) {
+            comps.push({ char: c, pinyin: bankEntry.pinyin, definition: bankEntry.definition, hsk: bankEntry.hsk });
+          } else {
+            try {
+              const entry = await api.getCharacter(c);
+              if (entry.pinyin) comps.push({ char: c, pinyin: entry.pinyin, definition: entry.definition, hsk: entry.hsk });
+            } catch { /* skip */ }
+          }
+        }
+        componentChars = comps;
       } else {
         charData = chars[text] ?? null;
         inBank = text in chars;
@@ -88,6 +104,29 @@
       beastiaryDict.set(words);
     } catch (e) {
       removeMsg = 'Failed to remove character';
+    }
+  }
+
+  async function handleAddToBank() {
+    try {
+      const res = await api.addCharacters(text);
+      if (res.added.length > 0) {
+        removeMsg = `Added: ${res.added.join('')}`;
+        inBank = true;
+        const [chars, words] = await Promise.all([api.getCharacters(), api.getWords()]);
+        bankDict.set(chars);
+        beastiaryDict.set(words);
+        charData = chars[text] ?? null;
+        if (charData) {
+          unlockedWords = Object.entries(words)
+            .filter(([word]) => word.includes(text))
+            .map(([word, data]) => ({ word, data }));
+        }
+      } else {
+        removeMsg = 'Already in bank';
+      }
+    } catch (e) {
+      removeMsg = 'Failed to add character';
     }
   }
 
@@ -203,12 +242,53 @@
         </div>
       {/if}
 
-      <!-- Remove button (characters only) -->
-      {#if !isWord && inBank}
+      <!-- Component characters (for words) -->
+      {#if isWord && componentChars.length > 0}
+        <div class="words-section">
+          <h3 class="section-label">Characters</h3>
+          <div class="words-list">
+            {#each componentChars as cc}
+              <button class="word-row" onclick={() => { dictionaryTarget.set({ text: cc.char, isWord: false }); }}>
+                <span class="word-text">{cc.char}</span>
+                <span class="word-pinyin-cell">
+                  {#each splitPronunciations(cc.pinyin, cc.definition) as pron, pi}
+                    {#if pi === 0}
+                      {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                        {#if si > 0}{' '}{/if}
+                        <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                        <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c2) => c2.toLowerCase())})</span>
+                      {/each}
+                    {/if}
+                  {/each}
+                </span>
+                <span class="word-def-cell">
+                  {#each splitPronunciations(cc.pinyin, cc.definition) as pron, pi}
+                    {#if pi === 0}
+                      <span class="word-meanings">{pron.definition.split('; ').filter(Boolean).join(' • ')}</span>
+                      {#if splitPronunciations(cc.pinyin, cc.definition).length > 1}
+                        <span class="word-more">+{splitPronunciations(cc.pinyin, cc.definition).length - 1} more</span>
+                      {/if}
+                    {/if}
+                  {/each}
+                </span>
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
+      <!-- Add/Remove button (characters only) -->
+      {#if !isWord}
         <div class="remove-section">
-          <Button3D variant="ghost" size="sm" onclick={handleRemove}>
-            Remove from bank
-          </Button3D>
+          {#if inBank}
+            <Button3D variant="ghost" size="sm" onclick={handleRemove}>
+              Remove from bank
+            </Button3D>
+          {:else}
+            <Button3D variant="coral" size="sm" onclick={handleAddToBank}>
+              Add to bank
+            </Button3D>
+          {/if}
           {#if removeMsg}
             <p class="remove-msg">{removeMsg}</p>
           {/if}
@@ -253,11 +333,13 @@
   }
 
   .entry-card {
-    background: #ffffff;
-    border: 1px solid #e8e5e0;
+    background: #f5f0e3;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    border: none;
     border-radius: 2px;
     padding: 28px;
-    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 0 #e0d8c8, 2px 3px 10px rgba(0, 0, 0, 0.25), 4px 6px 18px rgba(0, 0, 0, 0.10);
   }
 
   .entry-header {
@@ -415,8 +497,8 @@
 
   .word-row {
     display: grid;
-    grid-template-columns: 80px 150px 1fr;
-    gap: 16px;
+    grid-template-columns: 90px 160px 1fr;
+    gap: 18px;
     align-items: baseline;
     padding: 8px 10px;
     background: none;
@@ -433,14 +515,14 @@
 
   .word-text {
     font-family: 'Ma Shan Zheng', cursive;
-    font-size: 24px;
+    font-size: 28px;
     color: #2d2d2d;
     line-height: 1.2;
   }
 
   .word-pinyin-cell {
     font-family: 'Inter', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.4;
     white-space: nowrap;
     overflow: hidden;
@@ -449,7 +531,7 @@
 
   .word-def-cell {
     font-family: 'Inter', sans-serif;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.4;
     overflow: hidden;
     display: flex;
@@ -460,15 +542,15 @@
 
   .word-pinyin-colored {
     font-weight: 600;
-    font-size: 12px;
+    font-size: 13px;
     margin-right: 1px;
     white-space: nowrap;
   }
 
   .word-pinyin-num {
-    font-size: 9px;
+    font-size: 10px;
     color: #bbbbbb;
-    margin-right: 4px;
+    margin-right: 5px;
     white-space: nowrap;
   }
 

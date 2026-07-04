@@ -3,7 +3,6 @@
   import { bankDict, beastiaryDict, openDictionary } from '$lib/stores';
   import { api } from '$lib/api';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
-  import Button3D from '$lib/components/Button3D.svelte';
   import type { DictionaryEntry } from '$lib/types';
 
   let allChars = $state<DictionaryEntry[]>([]);
@@ -53,28 +52,9 @@
     }
     return chunks;
   });
-
-  async function handleExport() {
-    try {
-      const csv = await api.exportAnki();
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'openzi-export.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      console.error('Export failed');
-    }
-  }
 </script>
 
 <div class="page">
-  <div class="page-header">
-    <h1 class="page-title">Character Codex</h1>
-    <Button3D size="sm" variant="ghost" onclick={handleExport}>Export to Anki</Button3D>
-  </div>
 
   {#if loading}
     <p class="loading-text">Loading dictionary...</p>
@@ -133,20 +113,6 @@
     gap: 20px;
   }
 
-  .page-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .page-title {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 36px;
-    color: #2d2d2d;
-    margin: 0;
-    line-height: 1;
-  }
-
   .loading-text {
     font-size: 14px;
     color: #888888;
@@ -162,11 +128,13 @@
   .hsk-summary {
     display: flex;
     gap: 12px;
-    background: #ffffff;
-    border: 1px solid #e8e5e0;
+    background: #f5f0e3;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    border: none;
     border-radius: 2px;
     padding: 14px 18px;
-    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 0 #e0d8c8, 2px 3px 10px rgba(0, 0, 0, 0.25), 4px 6px 18px rgba(0, 0, 0, 0.10);
   }
 
   .hsk-item {
@@ -209,11 +177,13 @@
   }
 
   .container {
-    background: #ffffff;
-    border: 1px solid #e8e5e0;
+    background: #f5f0e3;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    border: none;
     border-radius: 2px;
     padding: 18px;
-    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 0 #e0d8c8, 2px 3px 10px rgba(0, 0, 0, 0.25), 4px 6px 18px rgba(0, 0, 0, 0.10);
   }
 
   .container-header {

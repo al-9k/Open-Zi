@@ -2,11 +2,10 @@
   import { onMount } from 'svelte';
   import { stats as statsStore, bankDict, beastiaryDict, openDictionary, navigateTo } from '$lib/stores';
   import { api } from '$lib/api';
-  import { numericToAccented, hskToChineseNumeral, getToneNumber, getToneColor, splitPronunciations } from '$lib/utils';
+  import { numericToAccented, getToneNumber, getToneColor, splitPronunciations } from '$lib/utils';
   import ClipboardCard from '$lib/components/ClipboardCard.svelte';
-  import Button3D from '$lib/components/Button3D.svelte';
-  import LinedInput from '$lib/components/LinedInput.svelte';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
+  import AddBar from '$lib/components/AddBar.svelte';
   import type { StatsData, DictionaryEntry } from '$lib/types';
 
   let statsData = $state<StatsData | null>(null);
@@ -65,26 +64,6 @@
     }
   }
 
-  async function handleSave() {
-    await api.save();
-  }
-
-  async function handleLoad() {
-    try {
-      await api.load();
-      await loadStats();
-      const [chars, words] = await Promise.all([api.getCharacters(), api.getWords()]);
-      bankDict.set(chars);
-      beastiaryDict.set(words);
-    } catch (e) {
-      console.error('Load failed:', e);
-    }
-  }
-
-  function handleAddKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter') handleAdd();
-  }
-
   // Get recently added chars from timeline
   function getRecentChars(): { char: string; hsk: number | null; frequencyRank: number | null }[] {
     if (!statsData?.char_timeline) return [];
@@ -109,21 +88,15 @@
   {:else}
     <!-- Stats row - clipped to clipboard -->
     <div class="stats-row">
-      <ClipboardCard title="Characters in Bank" rotate={-1.5}>
+      <ClipboardCard title="Characters in Bank" rotate={-6} tapeStyle="left:40%; top:-4px; rotate:-1deg; width:72px;" color="#ffe082">
         <span class="stat-number">{statsData?.char_count ?? 0}</span>
       </ClipboardCard>
-      <ClipboardCard title="Words Unlocked" rotate={0.8}>
+      <ClipboardCard title="Words Unlocked" rotate={0.8} tapeStyle="left:55%; top:-1px; rotate:2deg; width:85px;" color="#f8bbd0">
         <span class="stat-number">{statsData?.word_count ?? 0}</span>
       </ClipboardCard>
-      <ClipboardCard title="Dictionary Size" rotate={-0.5}>
+      <ClipboardCard title="Dictionary Size" rotate={5} tapeStyle="left:45%; top:2px; rotate:8deg; width:78px;" color="#eeeeee">
         <span class="stat-number">{statsData?.dictionary_count ?? 0}</span>
       </ClipboardCard>
-    </div>
-
-    <!-- Save / Load -->
-    <div class="actions-row">
-      <Button3D size="sm" variant="teal" onclick={handleSave}>Save</Button3D>
-      <Button3D size="sm" variant="coral" onclick={handleLoad}>Load</Button3D>
     </div>
 
     <!-- Character of the Day -->
@@ -170,16 +143,7 @@
     <!-- Quick Add -->
     <div class="section">
       <h2 class="section-title">Quick Add</h2>
-      <div class="quick-add">
-        <div class="add-input-wrap">
-          <LinedInput
-            bind:value={addText}
-            placeholder="Type characters to add..."
-            onkeydown={handleAddKeydown}
-          />
-        </div>
-        <Button3D size="md" variant="coral" onclick={handleAdd}>Add Characters</Button3D>
-      </div>
+      <AddBar bind:value={addText} onsubmit={handleAdd} />
       {#if addMessage}
         <p class="add-message" class:error={addMsgType === 'error'}>{addMessage}</p>
       {/if}
@@ -222,6 +186,7 @@
     display: flex;
     gap: 20px;
     flex-wrap: wrap;
+    justify-content: center;
   }
 
   .stat-number {
@@ -232,17 +197,17 @@
     display: block;
   }
 
-  .actions-row {
-    display: flex;
-    gap: 10px;
-  }
-
   .section {
-    background: #ffffff;
-    border: 1px solid #e8e5e0;
+    background: #f5f0e3;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    border: none;
     border-radius: 2px;
     padding: 20px;
-    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0 1px 0 #e0d8c8,
+      2px 3px 10px rgba(0, 0, 0, 0.25),
+      4px 6px 18px rgba(0, 0, 0, 0.10);
   }
 
   .section-title {
@@ -335,16 +300,6 @@
   }
 
   /* Quick add */
-  .quick-add {
-    display: flex;
-    gap: 12px;
-    align-items: flex-end;
-  }
-
-  .add-input-wrap {
-    flex: 1;
-    max-width: 340px;
-  }
 
   .add-message {
     margin-top: 10px;

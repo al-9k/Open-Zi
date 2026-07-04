@@ -5,7 +5,7 @@
   import { numericToAccented, getToneNumber, getToneColor, splitPronunciations } from '$lib/utils';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
   import Button3D from '$lib/components/Button3D.svelte';
-  import LinedInput from '$lib/components/LinedInput.svelte';
+  import AddBar from '$lib/components/AddBar.svelte';
   import type { BankDict, BeastiaryDict } from '$lib/types';
 
   let activeTab = $state<'chars' | 'words'>('chars');
@@ -73,10 +73,6 @@
 
   function cancelRemove() {
     charToRemove = null;
-  }
-
-  function handleAddKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter') handleAdd();
   }
 
   // Sorted/filtered character list
@@ -197,14 +193,7 @@
   {#if activeTab === 'chars'}
     <!-- Add input -->
     <div class="add-row">
-      <div class="add-input-wrap">
-        <LinedInput
-          bind:value={addText}
-          placeholder="Add characters..."
-          onkeydown={handleAddKeydown}
-        />
-      </div>
-      <Button3D size="sm" variant="coral" onclick={handleAdd}>Add</Button3D>
+      <AddBar bind:value={addText} onsubmit={handleAdd} placeholder="Add characters..." />
     </div>
     {#if addMessage}
       <p class="msg">{addMessage}</p>
@@ -469,13 +458,6 @@
 
   .add-row {
     display: flex;
-    gap: 10px;
-    align-items: flex-end;
-  }
-
-  .add-input-wrap {
-    flex: 1;
-    max-width: 300px;
   }
 
   .msg {
@@ -638,10 +620,12 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    background: #ffffff;
-    border: 1px solid #e8e5e0;
+    background: #f5f0e3;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    border: none;
     border-radius: 2px;
-    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1px 0 #e0d8c8, 2px 3px 10px rgba(0, 0, 0, 0.25), 4px 6px 18px rgba(0, 0, 0, 0.10);
     overflow: hidden;
   }
 

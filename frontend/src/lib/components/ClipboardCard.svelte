@@ -4,24 +4,21 @@
   let {
     title,
     rotate = 0,
+    tapeStyle = '',
+    color = '#fff9c4',
     children,
   }: {
     title: string;
     rotate?: number;
+    tapeStyle?: string;
+    color?: string;
     children: Snippet;
   } = $props();
 </script>
 
 <div class="clipboard" style="--clip-rotate: {rotate}deg">
-  <div class="clip">
-    <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
-      <rect x="2" y="2" width="28" height="16" rx="2" fill="#b8b0a0" stroke="#9a9282" stroke-width="0.5"/>
-      <rect x="6" y="4" width="20" height="12" rx="1" fill="#d4cfc5" stroke="#b8b0a0" stroke-width="0.5"/>
-      <ellipse cx="10" cy="10" rx="4" ry="5" fill="#c0b8a8" stroke="#9a9282" stroke-width="0.5"/>
-      <ellipse cx="22" cy="10" rx="4" ry="5" fill="#c0b8a8" stroke="#9a9282" stroke-width="0.5"/>
-    </svg>
-  </div>
-  <div class="paper">
+  <div class="tape" style={tapeStyle || ''}></div>
+  <div class="paper" style="background:{color}">
     <h3 class="title">{title}</h3>
     {@render children()}
   </div>
@@ -31,23 +28,40 @@
   .clipboard {
     position: relative;
     transform: rotate(var(--clip-rotate, 0deg));
+    padding-top: 8px;
   }
 
-  .clip {
+  .tape {
     position: absolute;
-    top: -10px;
+    top: -2px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) rotate(-3deg);
+    width: 80px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(2px);
+    border-radius: 1px;
     z-index: 5;
-    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    clip-path: polygon(
+      0% 30%, 3% 10%, 8% 35%, 14% 5%, 20% 25%, 25% 8%, 30% 28%, 35% 12%,
+      40% 20%, 45% 5%, 50% 30%, 55% 10%, 60% 25%, 65% 8%, 70% 30%,
+      75% 15%, 80% 28%, 86% 10%, 92% 25%, 97% 12%, 100% 28%,
+      100% 72%, 97% 88%, 92% 75%, 86% 90%, 80% 72%, 75% 85%,
+      70% 70%, 65% 92%, 60% 75%, 55% 90%, 50% 70%, 45% 95%,
+      40% 80%, 35% 88%, 30% 72%, 25% 92%, 20% 75%, 14% 90%,
+      8% 65%, 3% 90%, 0% 70%
+    );
   }
 
   .paper {
-    background: #ffffff;
-    border: 1px solid #e8e5e0;
+    border: none;
     border-radius: 2px;
     padding: 20px 16px 16px;
-    box-shadow: 3px 4px 10px rgba(0, 0, 0, 0.12);
+    box-shadow:
+      0 1px 0 #d4cfc0,
+      2px 3px 8px rgba(0, 0, 0, 0.25),
+      4px 6px 16px rgba(0, 0, 0, 0.10);
     position: relative;
   }
 
@@ -56,7 +70,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
     border-radius: 2px;
   }
 
@@ -64,7 +78,7 @@
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 11px;
     font-weight: 600;
-    color: #888888;
+    color: #777;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin-bottom: 12px;

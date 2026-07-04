@@ -75,7 +75,6 @@
 </script>
 
 <div class="page">
-  <h1 class="page-title">Settings</h1>
 
   <div class="section">
     <h2 class="section-title">Data</h2>
@@ -83,7 +82,7 @@
       <Button3D size="md" variant="coral" onclick={handleSave}>Save</Button3D>
       <Button3D size="md" variant="teal" onclick={handleLoad}>Load</Button3D>
       <Button3D size="md" variant="coral" onclick={handleRefresh}>Refresh Dictionary</Button3D>
-      <Button3D size="md" variant="ghost" onclick={handleExport}>Export to Anki</Button3D>
+      <Button3D size="md" variant="teal" onclick={handleExport}>Export to Anki</Button3D>
     </div>
     {#if saveMsg}
       <p class="msg success">{saveMsg}</p>
@@ -122,20 +121,17 @@
     gap: 20px;
   }
 
-  .page-title {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 36px;
-    color: #2d2d2d;
-    margin: 0;
-    line-height: 1;
-  }
-
   .section {
-    background: #ffffff;
-    border: 1px solid #e8e5e0;
+    background: #f5f0e3;
+    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    border: none;
     border-radius: 2px;
     padding: 20px;
-    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.06);
+    box-shadow:
+      0 1px 0 #e0d8c8,
+      2px 3px 10px rgba(0, 0, 0, 0.25),
+      4px 6px 18px rgba(0, 0, 0, 0.10);
   }
 
   .section-title {
