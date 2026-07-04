@@ -11,6 +11,7 @@ export interface WordData {
   pinyin: string;
   definition: string;
   hsk: number | null;
+  frequency_rank: number | null;
   date: string;
 }
 

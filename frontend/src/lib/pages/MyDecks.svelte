@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { bankDict, openDictionary } from '$lib/stores';
+  import { bankDict, beastiaryDict, openDictionary } from '$lib/stores';
   import { api } from '$lib/api';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
   import Button3D from '$lib/components/Button3D.svelte';
@@ -10,14 +10,17 @@
   let loading = $state(true);
 
   const CHUNK_SIZE = 250;
+  const hskNumerals = ['一', '二', '三', '四', '五', '六'];
 
   onMount(async () => {
     try {
-      const [chars, dict] = await Promise.all([
+      const [chars, words, dict] = await Promise.all([
         api.getCharacters(),
+        api.getWords(),
         api.getDictionary(),
       ]);
       bankDict.set(chars);
+      beastiaryDict.set(words);
       allChars = dict;
     } catch (e) {
       console.error('Failed to load dictionary:', e);
@@ -32,6 +35,15 @@
 
   function learnedCount(chunk: DictionaryEntry[]): number {
     return chunk.filter(e => isInBank(e.character)).length;
+  }
+
+  function hskProgress(level: number): { learned: number; total: number } {
+    let learned = 0;
+    let total = 0;
+    for (const [, d] of Object.entries($bankDict)) { if (d.hsk === level) { total++; learned++; } }
+    for (const [, d] of Object.entries($beastiaryDict)) { if (d.hsk === level) { total++; learned++; } }
+    for (const e of allChars) { if (e.hsk === level) total++; }
+    return { learned, total };
   }
 
   const containers = $derived.by(() => {
@@ -67,6 +79,17 @@
   {#if loading}
     <p class="loading-text">Loading dictionary...</p>
   {:else}
+    <div class="hsk-summary">
+      {#each [1, 2, 3, 4, 5, 6] as lv}
+        {@const p = hskProgress(lv)}
+        {@const pct = p.total > 0 ? (p.learned / p.total) * 100 : 0}
+        <div class="hsk-item">
+          <span class="hsk-label">{hskNumerals[lv - 1]}</span>
+          <div class="hsk-bar"><div class="hsk-fill" style="width:{pct}%"></div></div>
+          <span class="hsk-count">{p.learned}/{p.total}</span>
+        </div>
+      {/each}
+    </div>
     <div class="containers">
       {#each containers as chunk, ci}
         <div class="container">
@@ -78,7 +101,7 @@
               {chunk.length} characters
             </span>
             <span class="container-progress">
-              {learnedCount(chunk)} learned
+              {learnedCount(chunk)}/{chunk.length} Learned
             </span>
           </div>
           <div class="card-grid">
@@ -134,6 +157,55 @@
     display: flex;
     flex-direction: column;
     gap: 28px;
+  }
+
+  .hsk-summary {
+    display: flex;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #e8e5e0;
+    border-radius: 2px;
+    padding: 14px 18px;
+    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .hsk-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hsk-label {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 18px;
+    color: #c41e3a;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .hsk-bar {
+    flex: 1;
+    height: 5px;
+    background: #f0ece5;
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .hsk-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #e87d7d, #f0a8a8);
+    border-radius: 3px;
+    transition: width 0.5s;
+  }
+
+  .hsk-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: #2d2d2d;
   }
 
   .container {

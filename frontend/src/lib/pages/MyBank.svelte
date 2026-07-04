@@ -15,7 +15,7 @@
 
   // Sort state
   let charSort = $state<'alpha' | 'hsk' | 'freq'>('alpha');
-  let wordSort = $state<'alpha' | 'hsk'>('alpha');
+  let wordSort = $state<'alpha' | 'hsk' | 'freq'>('alpha');
   let wordFilter = $state('');
 
   // Confirm dialog for remove
@@ -98,6 +98,55 @@
     return entries;
   });
 
+  function hskGroups(chars: typeof sortedChars) {
+    const groups: { level: number; label: string; chars: typeof sortedChars }[] = [];
+    for (const lv of [1,2,3,4,5,6]) {
+      const items = chars.filter(c => c.hsk === lv);
+      if (items.length > 0) groups.push({ level: lv, label: ['','一','二','三','四','五','六'][lv], chars: items });
+    }
+    const unranked = chars.filter(c => !c.hsk);
+    if (unranked.length > 0) groups.push({ level: 0, label: '?', chars: unranked });
+    return groups;
+  }
+
+  function freqGroups(chars: typeof sortedChars) {
+    const groups: { start: number; end: number; chars: typeof sortedChars }[] = [];
+    const step = 250;
+    const ranked = chars.filter(c => c.frequency_rank != null);
+    for (let i = 1; i <= 1500; i += step) {
+      const items = ranked.filter(c => (c.frequency_rank ?? 0) >= i && (c.frequency_rank ?? 0) < i + step);
+      if (items.length > 0) groups.push({ start: i, end: i + step - 1, chars: items });
+    }
+    const unranked = chars.filter(c => c.frequency_rank == null);
+    if (unranked.length > 0) groups.push({ start: 0, end: 0, chars: unranked });
+    return groups;
+  }
+
+  function wordHskGroups(words: typeof sortedWords) {
+    const groups: { level: number; label: string; words: typeof sortedWords }[] = [];
+    const numerals = ['','一','二','三','四','五','六'];
+    for (const lv of [1,2,3,4,5,6]) {
+      const items = words.filter(w => w.hsk === lv);
+      if (items.length > 0) groups.push({ level: lv, label: numerals[lv], words: items });
+    }
+    const unranked = words.filter(w => !w.hsk);
+    if (unranked.length > 0) groups.push({ level: 0, label: '?', words: unranked });
+    return groups;
+  }
+
+  function wordFreqGroups(words: typeof sortedWords) {
+    const groups: { start: number; end: number; words: typeof sortedWords }[] = [];
+    const step = 250;
+    const ranked = words.filter(w => w.frequency_rank != null);
+    for (let i = 1; i <= 1500; i += step) {
+      const items = ranked.filter(w => (w.frequency_rank ?? 0) >= i && (w.frequency_rank ?? 0) < i + step);
+      if (items.length > 0) groups.push({ start: i, end: i + step - 1, words: items });
+    }
+    const unranked = words.filter(w => w.frequency_rank == null);
+    if (unranked.length > 0) groups.push({ start: 0, end: 0, words: unranked });
+    return groups;
+  }
+
   // Sorted/filtered word list
   const sortedWords = $derived.by(() => {
     let entries = Object.entries($beastiaryDict).map(([word, data]) => ({
@@ -119,6 +168,8 @@
       entries.sort((a, b) => a.word.localeCompare(b.word, 'zh'));
     } else if (wordSort === 'hsk') {
       entries.sort((a, b) => (a.hsk ?? 99) - (b.hsk ?? 99));
+    } else if (wordSort === 'freq') {
+      entries.sort((a, b) => (a.frequency_rank ?? 99999) - (b.frequency_rank ?? 99999));
     }
     return entries;
   });
@@ -169,34 +220,59 @@
 
     <!-- Character grid -->
     {#if sortedChars.length > 0}
-      <div class="card-grid">
-        {#each sortedChars as charData}
-          {@const rot = ((charData.char.charCodeAt(0) * 7) % 3) - 1}
-          <div class="card-wrapper">
-            <CharacterCard
-              character={charData.char}
-              hsk={charData.hsk}
-              frequencyRank={charData.frequency_rank}
-              inBank={true}
-              rotate={rot}
-              onclick={() => openDictionary(charData.char, false)}
-            />
-            <button
-              class="remove-btn"
-              onclick={(e) => {
-                e.stopPropagation();
-                handleRemove(charData.char);
-              }}
-              title="Remove"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="18" y1="6" x2="6" y2="18"/>
-                <line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
+      {#if charSort === 'alpha'}
+        <div class="card-grid">
+          {#each sortedChars as charData}
+            {@const rot = ((charData.char.charCodeAt(0) * 7) % 3) - 1}
+            <div class="card-wrapper">
+              <CharacterCard character={charData.char} hsk={charData.hsk} frequencyRank={charData.frequency_rank} inBank={true} rotate={rot} onclick={() => openDictionary(charData.char, false)} />
+              <button class="remove-btn" onclick={(e) => { e.stopPropagation(); handleRemove(charData.char); }} title="Remove">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          {/each}
+        </div>
+      {:else if charSort === 'hsk'}
+        {#each hskGroups(sortedChars) as group}
+          <div class="char-section">
+            <div class="char-section-header">
+              <span class="char-section-label" style="color:#c41e3a">HSK {group.level}</span>
+              <span class="char-section-count">{group.chars.length} character{group.chars.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="card-grid">
+              {#each group.chars as charData}
+                {@const rot = ((charData.char.charCodeAt(0) * 7) % 3) - 1}
+                <div class="card-wrapper">
+                  <CharacterCard character={charData.char} hsk={charData.hsk} frequencyRank={charData.frequency_rank} inBank={true} rotate={rot} onclick={() => openDictionary(charData.char, false)} />
+                  <button class="remove-btn" onclick={(e) => { e.stopPropagation(); handleRemove(charData.char); }} title="Remove">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              {/each}
+            </div>
           </div>
         {/each}
-      </div>
+      {:else if charSort === 'freq'}
+        {#each freqGroups(sortedChars) as group}
+          <div class="char-section">
+            <div class="char-section-header">
+              <span class="char-section-label">{group.start > 0 ? `#${group.start}–${group.end}` : 'Unranked'}</span>
+              <span class="char-section-count">{group.chars.length} character{group.chars.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="card-grid">
+              {#each group.chars as charData}
+                {@const rot = ((charData.char.charCodeAt(0) * 7) % 3) - 1}
+                <div class="card-wrapper">
+                  <CharacterCard character={charData.char} hsk={charData.hsk} frequencyRank={charData.frequency_rank} inBank={true} rotate={rot} onclick={() => openDictionary(charData.char, false)} />
+                  <button class="remove-btn" onclick={(e) => { e.stopPropagation(); handleRemove(charData.char); }} title="Remove">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/each}
+      {/if}
     {:else}
       <p class="empty">No characters yet. Add some above!</p>
     {/if}
@@ -216,43 +292,115 @@
         <span class="sort-label">Sort:</span>
         <button class="sort-btn" class:active={wordSort === 'alpha'} onclick={() => (wordSort = 'alpha')}>A-Z</button>
         <button class="sort-btn" class:active={wordSort === 'hsk'} onclick={() => (wordSort = 'hsk')}>HSK</button>
+        <button class="sort-btn" class:active={wordSort === 'freq'} onclick={() => (wordSort = 'freq')}>Frequency</button>
       </div>
     </div>
 
     {#if sortedWords.length > 0}
-      <div class="word-list">
-        {#each sortedWords as wordData}
-          <button
-            class="word-row"
-            onclick={() => openDictionary(wordData.word, true)}
-          >
-            <span class="word-char">{wordData.word}</span>
-            <span class="word-pinyin-cell">
-              {#each splitPronunciations(wordData.pinyin, wordData.definition) as pron, pi}
-                {#if pi === 0}
-                  {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
-                    {#if si > 0}{' '}{/if}
-                    <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
-                    <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
-                  {/each}
-                {/if}
-              {/each}
-            </span>
-            <span class="word-def-cell">
-              {#each splitPronunciations(wordData.pinyin, wordData.definition) as pron, pi}
-                {#if pi === 0}
-                  <span class="word-meanings">
-                    {pron.definition.split('; ').filter(Boolean).join(' • ')}
+      {#if wordSort === 'hsk'}
+        {#each wordHskGroups(sortedWords) as group}
+          <div class="char-section">
+            <div class="char-section-header">
+              <span class="char-section-label" style="color:#c41e3a">HSK {group.level}</span>
+              <span class="char-section-count">{group.words.length} word{group.words.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="word-list">
+              {#each group.words as wordData}
+                <button class="word-row" onclick={() => openDictionary(wordData.word, true)}>
+                  <span class="word-char">{wordData.word}</span>
+                  <span class="word-pinyin-cell">
+                    {#each splitPronunciations(wordData.pinyin, wordData.definition) as pron, pi}
+                      {#if pi === 0}
+                        {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                          {#if si > 0}{' '}{/if}
+                          <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                          <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+                        {/each}
+                      {/if}
+                    {/each}
                   </span>
-                  {#if splitPronunciations(wordData.pinyin, wordData.definition).length > 1}
-                    <span class="word-more">+{splitPronunciations(wordData.pinyin, wordData.definition).length - 1} more</span>
-                  {/if}
-                {/if}
+                  <span class="word-def-cell">
+                    {#each splitPronunciations(wordData.pinyin, wordData.definition) as pron, pi}
+                      {#if pi === 0}
+                        <span class="word-meanings">{pron.definition.split('; ').filter(Boolean).join(' • ')}</span>
+                        {#if splitPronunciations(wordData.pinyin, wordData.definition).length > 1}
+                          <span class="word-more">+{splitPronunciations(wordData.pinyin, wordData.definition).length - 1} more</span>
+                        {/if}
+                      {/if}
+                    {/each}
+                  </span>
+                </button>
               {/each}
-            </span>
-          </button>
+            </div>
+          </div>
         {/each}
-      </div>
+      {:else if wordSort === 'freq'}
+        {#each wordFreqGroups(sortedWords) as group}
+          <div class="char-section">
+            <div class="char-section-header">
+              <span class="char-section-label">{group.start > 0 ? `#${group.start}–${group.end}` : 'Unranked'}</span>
+              <span class="char-section-count">{group.words.length} word{group.words.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="word-list">
+              {#each group.words as wordData}
+                <button class="word-row" onclick={() => openDictionary(wordData.word, true)}>
+                  <span class="word-char">{wordData.word}</span>
+                  <span class="word-pinyin-cell">
+                    {#each splitPronunciations(wordData.pinyin, wordData.definition) as pron, pi}
+                      {#if pi === 0}
+                        {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                          {#if si > 0}{' '}{/if}
+                          <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                          <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+                        {/each}
+                      {/if}
+                    {/each}
+                  </span>
+                  <span class="word-def-cell">
+                    {#each splitPronunciations(wordData.pinyin, wordData.definition) as pron, pi}
+                      {#if pi === 0}
+                        <span class="word-meanings">{pron.definition.split('; ').filter(Boolean).join(' • ')}</span>
+                        {#if splitPronunciations(wordData.pinyin, wordData.definition).length > 1}
+                          <span class="word-more">+{splitPronunciations(wordData.pinyin, wordData.definition).length - 1} more</span>
+                        {/if}
+                      {/if}
+                    {/each}
+                  </span>
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/each}
+      {:else}
+        <div class="word-list">
+          {#each sortedWords as wordData}
+            <button class="word-row" onclick={() => openDictionary(wordData.word, true)}>
+              <span class="word-char">{wordData.word}</span>
+              <span class="word-pinyin-cell">
+                {#each splitPronunciations(wordData.pinyin, wordData.definition) as pron, pi}
+                  {#if pi === 0}
+                    {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                      {#if si > 0}{' '}{/if}
+                      <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                      <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+                    {/each}
+                  {/if}
+                {/each}
+              </span>
+              <span class="word-def-cell">
+                {#each splitPronunciations(wordData.pinyin, wordData.definition) as pron, pi}
+                  {#if pi === 0}
+                    <span class="word-meanings">{pron.definition.split('; ').filter(Boolean).join(' • ')}</span>
+                    {#if splitPronunciations(wordData.pinyin, wordData.definition).length > 1}
+                      <span class="word-more">+{splitPronunciations(wordData.pinyin, wordData.definition).length - 1} more</span>
+                    {/if}
+                  {/if}
+                {/each}
+              </span>
+            </button>
+          {/each}
+        </div>
+      {/if}
     {:else}
       <p class="empty">Add characters to unlock words</p>
     {/if}
@@ -373,6 +521,35 @@
   .sort-btn:hover:not(.active) {
     background: #faf8f5;
     border-color: #d0cbc0;
+  }
+
+  .char-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .char-section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f0ece5;
+  }
+
+  .char-section-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d2d2d;
+    line-height: 1;
+    letter-spacing: 0.5px;
+  }
+
+  .char-section-count {
+    font-size: 12px;
+    color: #888888;
+    font-family: 'Inter', sans-serif;
   }
 
   .card-grid {

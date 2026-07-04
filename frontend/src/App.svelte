@@ -6,7 +6,6 @@
   import Dashboard from '$lib/pages/Dashboard.svelte';
   import DictionaryEntry from '$lib/pages/DictionaryEntry.svelte';
   import MyBank from '$lib/pages/MyBank.svelte';
-  import MyHSK from '$lib/pages/MyHSK.svelte';
   import MyDecks from '$lib/pages/MyDecks.svelte';
   import Settings from '$lib/pages/Settings.svelte';
 
@@ -61,8 +60,6 @@
       <DictionaryEntry />
     {:else if $currentPage === 'my-bank'}
       <MyBank />
-    {:else if $currentPage === 'my-hsk'}
-      <MyHSK />
     {:else if $currentPage === 'my-decks'}
       <MyDecks />
     {:else if $currentPage === 'settings'}

@@ -109,7 +109,7 @@ def get_character(char: str):
 
 @app.get("/api/dictionary")
 def get_dictionary():
-    """Return top 1500 single characters ranked by native frequency."""
+    """Return top 1500 single characters ranked by frequency."""
     items = []
     for char, data in engine.cedict.items():
         if len(char) == 1 and data.get("frequency"):
@@ -123,10 +123,8 @@ def get_dictionary():
                     "frequency_rank": data.get("frequency_rank"),
                 }
             )
-    # Sort by frequency (ascending — lower rank = more frequent) and take top 1500
     items.sort(key=lambda x: x["frequency"])
     items = items[:1500]
-    # Re-rank 1–1500
     for i, item in enumerate(items):
         item["frequency_rank"] = i + 1
     return items

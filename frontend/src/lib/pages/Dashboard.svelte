@@ -2,23 +2,35 @@
   import { onMount } from 'svelte';
   import { stats as statsStore, bankDict, beastiaryDict, openDictionary, navigateTo } from '$lib/stores';
   import { api } from '$lib/api';
-  import { numericToAccented, hskToChineseNumeral } from '$lib/utils';
+  import { numericToAccented, hskToChineseNumeral, getToneNumber, getToneColor, splitPronunciations } from '$lib/utils';
   import ClipboardCard from '$lib/components/ClipboardCard.svelte';
   import Button3D from '$lib/components/Button3D.svelte';
   import LinedInput from '$lib/components/LinedInput.svelte';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
-  import type { StatsData } from '$lib/types';
+  import type { StatsData, DictionaryEntry } from '$lib/types';
 
   let statsData = $state<StatsData | null>(null);
+  let cotd = $state<DictionaryEntry | null>(null);
   let addText = $state('');
   let addMessage = $state('');
   let addMsgType = $state<'success' | 'error' | ''>('');
   let loading = $state(true);
 
   onMount(async () => {
-    await loadStats();
+    await Promise.all([loadStats(), loadCharOfDay()]);
     loading = false;
   });
+
+  async function loadCharOfDay() {
+    try {
+      const dict = await api.getDictionary();
+      const seed = new Date().toDateString().split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+      const idx = seed % dict.length;
+      cotd = dict[idx];
+    } catch (e) {
+      console.error('Failed to load character of the day:', e);
+    }
+  }
 
   async function loadStats() {
     try {
@@ -89,9 +101,6 @@
       frequencyRank: $bankDict[e.char]?.frequency_rank ?? null,
     }));
   }
-
-  const hskLevels = [1, 2, 3, 4, 5, 6];
-  const hskNumerals = ['一', '二', '三', '四', '五', '六'];
 </script>
 
 <div class="page">
@@ -117,38 +126,46 @@
       <Button3D size="sm" variant="coral" onclick={handleLoad}>Load</Button3D>
     </div>
 
-    <!-- HSK Breakdown -->
-    <div class="section">
-      <h2 class="section-title">HSK Breakdown</h2>
-      <div class="hsk-bars">
-        {#each hskLevels as level}
-          {@const charsCount = statsData?.hsk_chars?.[String(level)] ?? 0}
-          {@const wordsCount = statsData?.hsk_words?.[String(level)] ?? 0}
-          {@const maxVal = Math.max(
-            ...Object.values(statsData?.hsk_chars ?? {}).map(Number),
-            ...Object.values(statsData?.hsk_words ?? {}).map(Number),
-            1
-          )}
-          <div class="hsk-row">
-            <span class="hsk-label">HSK {hskNumerals[level - 1]}</span>
-            <div class="hsk-bar-track">
-              <div
-                class="hsk-bar-fill chars"
-                style="width: {(charsCount / maxVal) * 100}%"
-              ></div>
+    <!-- Character of the Day -->
+    {#if cotd}
+      <div class="section">
+        <h2 class="section-title">Character of the Day</h2>
+        <button class="cotd-card" onclick={() => openDictionary(cotd.character, false)}>
+          <span class="cotd-char">{cotd.character}</span>
+          <div class="cotd-info">
+            <div class="cotd-pinyin">
+              {#each splitPronunciations(cotd.pinyin, cotd.definition) as pron, pi}
+                {#if pi === 0}
+                  {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                    {#if si > 0}{' '}{/if}
+                    <span style="color:{getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                    <span class="cotd-num">({syl.toLowerCase()})</span>
+                  {/each}
+                {/if}
+              {/each}
             </div>
-            <span class="hsk-count">{charsCount} chars</span>
-            <div class="hsk-bar-track">
-              <div
-                class="hsk-bar-fill words"
-                style="width: {(wordsCount / maxVal) * 100}%"
-              ></div>
+            <p class="cotd-def">
+              {#each splitPronunciations(cotd.pinyin, cotd.definition) as pron, pi}
+                {#if pi === 0}
+                  {pron.definition.split('; ').filter(Boolean).join(' • ')}
+                {/if}
+              {/each}
+              {#if splitPronunciations(cotd.pinyin, cotd.definition).length > 1}
+                <span class="cotd-more">+{splitPronunciations(cotd.pinyin, cotd.definition).length - 1} more</span>
+              {/if}
+            </p>
+            <div class="cotd-meta">
+              {#if cotd.frequency_rank}
+                <span class="cotd-rank">#{cotd.frequency_rank}</span>
+              {/if}
+              {#if cotd.hsk}
+                <span class="cotd-hsk">HSK {cotd.hsk}</span>
+              {/if}
             </div>
-            <span class="hsk-count">{wordsCount} words</span>
           </div>
-        {/each}
+        </button>
       </div>
-    </div>
+    {/if}
 
     <!-- Quick Add -->
     <div class="section">
@@ -238,56 +255,83 @@
     margin: 0 0 16px;
   }
 
-  /* HSK bars */
-  .hsk-bars {
+  /* Character of the Day */
+  .cotd-card {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    padding: 0;
+  }
+
+  .cotd-char {
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 80px;
+    color: #2d2d2d;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .cotd-info {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    padding-top: 8px;
+    min-width: 0;
   }
 
-  .hsk-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .hsk-label {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 18px;
-    color: #c41e3a;
-    min-width: 50px;
-    opacity: 0.8;
-  }
-
-  .hsk-bar-track {
-    flex: 1;
-    height: 12px;
-    background: #f0ece5;
-    border-radius: 6px;
-    overflow: hidden;
-    max-width: 120px;
-  }
-
-  .hsk-bar-fill {
-    height: 100%;
-    border-radius: 6px;
-    transition: width 0.5s ease;
-  }
-
-  .hsk-bar-fill.chars {
-    background: linear-gradient(90deg, #e87d7d, #f0a8a8);
-  }
-
-  .hsk-bar-fill.words {
-    background: linear-gradient(90deg, #6bb5b0, #8ecfcb);
-  }
-
-  .hsk-count {
-    font-size: 12px;
-    color: #888888;
-    min-width: 65px;
-    text-align: right;
+  .cotd-pinyin {
     font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+
+  .cotd-num {
+    font-size: 11px;
+    font-weight: 400;
+    color: #bbbbbb;
+    margin-right: 5px;
+  }
+
+  .cotd-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #555555;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .cotd-more {
+    font-size: 11px;
+    color: #e87d7d;
+    font-style: italic;
+  }
+
+  .cotd-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .cotd-rank {
+    font-size: 11px;
+    color: #bbbbbb;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .cotd-hsk {
+    font-size: 11px;
+    color: #c41e3a;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
   }
 
   /* Quick add */
