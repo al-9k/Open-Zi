@@ -15,7 +15,7 @@ export interface WordData {
 }
 
 export interface SearchResultItem extends CharacterData {
-  type: 'c' | 'w';
+  type: "c" | "w";
 }
 
 export interface StatsData {
@@ -42,3 +42,12 @@ export interface RemoveCharResponse {
 export type BankDict = Record<string, CharacterData>;
 export type BeastiaryDict = Record<string, WordData>;
 export type SearchResults = Record<string, SearchResultItem>;
+
+export interface DictionaryEntry {
+  character: string;
+  pinyin: string;
+  definition: string;
+  hsk: number | null;
+  frequency: number | null;
+  frequency_rank: number | null;
+}

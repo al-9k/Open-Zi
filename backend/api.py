@@ -90,12 +90,29 @@ def export_anki():
     return Response(content=output.getvalue(), media_type="text/csv")
 
 
+@app.get("/api/character/{char}")
+def get_character(char: str):
+    """Look up a single character from cedict regardless of bank status."""
+    if char in engine.cedict:
+        data = engine.cedict[char]
+        return {
+            "character": char,
+            "pinyin": data.get("pinyin", ""),
+            "definition": data.get("definition", ""),
+            "hsk": data.get("hsk"),
+            "frequency": data.get("frequency"),
+            "frequency_rank": data.get("frequency_rank"),
+            "in_bank": char in engine.bank,
+        }
+    return {"character": char, "error": "not found"}
+
+
 @app.get("/api/dictionary")
 def get_dictionary():
-    """Return all cedict characters sorted by frequency rank."""
+    """Return top 1500 single characters ranked by native frequency."""
     items = []
     for char, data in engine.cedict.items():
-        if len(char) == 1:  # characters only, not words
+        if len(char) == 1 and data.get("frequency"):
             items.append(
                 {
                     "character": char,
@@ -106,5 +123,10 @@ def get_dictionary():
                     "frequency_rank": data.get("frequency_rank"),
                 }
             )
-    items.sort(key=lambda x: x["frequency_rank"] or 99999)
+    # Sort by frequency (ascending — lower rank = more frequent) and take top 1500
+    items.sort(key=lambda x: x["frequency"])
+    items = items[:1500]
+    # Re-rank 1–1500
+    for i, item in enumerate(items):
+        item["frequency_rank"] = i + 1
     return items

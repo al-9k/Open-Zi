@@ -11,7 +11,7 @@
     { page: 'dashboard', label: 'Dashboard' },
     { page: 'my-bank', label: 'My Bank' },
     { page: 'my-hsk', label: 'My HSK' },
-    { page: 'my-decks', label: 'My Decks' },
+    { page: 'my-decks', label: 'My Codex' },
     { page: 'settings', label: 'Settings' },
   ];
 

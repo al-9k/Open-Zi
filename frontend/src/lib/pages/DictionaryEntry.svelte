@@ -47,6 +47,16 @@
         charData = chars[text] ?? null;
         inBank = text in chars;
 
+        // Fallback: look up in full dictionary if not in bank
+        if (!charData) {
+          try {
+            const entry = await api.getCharacter(text);
+            if (entry.pinyin) {
+              charData = entry as CharacterData;
+            }
+          } catch { /* ignore */ }
+        }
+
         // Find words containing this character
         if (inBank) {
           unlockedWords = Object.entries(words)

@@ -1,6 +1,46 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { bankDict, openDictionary } from '$lib/stores';
   import { api } from '$lib/api';
+  import CharacterCard from '$lib/components/CharacterCard.svelte';
   import Button3D from '$lib/components/Button3D.svelte';
+  import type { DictionaryEntry } from '$lib/types';
+
+  let allChars = $state<DictionaryEntry[]>([]);
+  let loading = $state(true);
+
+  const CHUNK_SIZE = 250;
+
+  onMount(async () => {
+    try {
+      const [chars, dict] = await Promise.all([
+        api.getCharacters(),
+        api.getDictionary(),
+      ]);
+      bankDict.set(chars);
+      allChars = dict;
+    } catch (e) {
+      console.error('Failed to load dictionary:', e);
+    } finally {
+      loading = false;
+    }
+  });
+
+  function isInBank(char: string): boolean {
+    return char in $bankDict;
+  }
+
+  function learnedCount(chunk: DictionaryEntry[]): number {
+    return chunk.filter(e => isInBank(e.character)).length;
+  }
+
+  const containers = $derived.by(() => {
+    const chunks: DictionaryEntry[][] = [];
+    for (let i = 0; i < allChars.length; i += CHUNK_SIZE) {
+      chunks.push(allChars.slice(i, i + CHUNK_SIZE));
+    }
+    return chunks;
+  });
 
   async function handleExport() {
     try {
@@ -19,25 +59,45 @@
 </script>
 
 <div class="page">
-  <div class="coming-soon">
-    <div class="stamp-area">
-      <div class="deck-stack">
-        <div class="deck-card card-1"></div>
-        <div class="deck-card card-2"></div>
-        <div class="deck-card card-3"></div>
-      </div>
-      <h1 class="cs-title">My Decks</h1>
-      <p class="cs-subtitle">Coming soon</p>
-      <p class="cs-desc">Custom flashcard decks, spaced repetition, and study sessions are on the way.</p>
-    </div>
-
-    <div class="export-area">
-      <p class="export-label">In the meantime, export your bank to Anki:</p>
-      <Button3D size="md" variant="teal" onclick={handleExport}>
-        Export to Anki
-      </Button3D>
-    </div>
+  <div class="page-header">
+    <h1 class="page-title">Character Codex</h1>
+    <Button3D size="sm" variant="ghost" onclick={handleExport}>Export to Anki</Button3D>
   </div>
+
+  {#if loading}
+    <p class="loading-text">Loading dictionary...</p>
+  {:else}
+    <div class="containers">
+      {#each containers as chunk, ci}
+        <div class="container">
+          <div class="container-header">
+            <span class="container-range">
+              #{chunk[0]?.frequency_rank}–#{chunk[chunk.length - 1]?.frequency_rank}
+            </span>
+            <span class="container-label">
+              {chunk.length} characters
+            </span>
+            <span class="container-progress">
+              {learnedCount(chunk)} learned
+            </span>
+          </div>
+          <div class="card-grid">
+            {#each chunk as entry}
+              {@const rot = ((entry.character.charCodeAt(0) * 7) % 3) - 1}
+              <CharacterCard
+                character={entry.character}
+                hsk={entry.hsk}
+                frequencyRank={entry.frequency_rank}
+                inBank={isInBank(entry.character)}
+                rotate={rot}
+                onclick={() => openDictionary(entry.character, false)}
+              />
+            {/each}
+          </div>
+        </div>
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -47,97 +107,79 @@
     padding: 32px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    gap: 20px;
   }
 
-  .coming-soon {
+  .page-header {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 32px;
-    text-align: center;
+    justify-content: space-between;
   }
 
-  .stamp-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* Stacked card illusion */
-  .deck-stack {
-    position: relative;
-    width: 120px;
-    height: 160px;
-    margin-bottom: 20px;
-  }
-
-  .deck-card {
-    position: absolute;
-    width: 120px;
-    height: 160px;
-    background: #faf7f2;
-    border: 1px solid #e8e3da;
-    border-radius: 2px;
-    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.08);
-  }
-
-  .card-1 {
-    transform: rotate(-3deg);
-    z-index: 3;
-  }
-
-  .card-2 {
-    transform: rotate(1deg) translateY(4px);
-    z-index: 2;
-    background: #f7f4ee;
-  }
-
-  .card-3 {
-    transform: rotate(4deg) translateY(8px);
-    z-index: 1;
-    background: #f5f0e8;
-  }
-
-  .cs-title {
+  .page-title {
     font-family: 'Ma Shan Zheng', cursive;
-    font-size: 42px;
+    font-size: 36px;
     color: #2d2d2d;
     margin: 0;
     line-height: 1;
   }
 
-  .cs-subtitle {
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: #c41e3a;
-    margin: 0;
-    transform: rotate(-1deg);
-    text-shadow: 0 1px 0 rgba(200, 30, 50, 0.1);
-  }
-
-  .cs-desc {
-    font-family: 'Inter', sans-serif;
+  .loading-text {
     font-size: 14px;
     color: #888888;
-    margin: 8px 0 0;
-    max-width: 320px;
-    line-height: 1.6;
+    font-family: 'Inter', sans-serif;
   }
 
-  .export-area {
+  .containers {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 12px;
+    gap: 28px;
   }
 
-  .export-label {
-    font-size: 13px;
-    color: #888888;
+  .container {
+    background: #ffffff;
+    border: 1px solid #e8e5e0;
+    border-radius: 2px;
+    padding: 18px;
+    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .container-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0ece5;
+  }
+
+  .container-range {
     font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #2d2d2d;
+  }
+
+  .container-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: #bbbbbb;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .container-progress {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6bb5b0;
+    margin-left: auto;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 90px);
+    gap: 12px;
+    justify-content: space-between;
   }
 </style>

@@ -39,6 +39,11 @@ export const api = {
       `/api/search?q=${encodeURIComponent(q)}`,
     ),
 
+  getCharacter: (char: string) =>
+    request<import("./types").DictionaryEntry>(
+      `/api/character/${encodeURIComponent(char)}`,
+    ),
+
   refresh: () =>
     request<{ status: string }>("/api/refresh", { method: "POST" }),
 
@@ -49,4 +54,7 @@ export const api = {
   load: () => request<{ status: string }>("/api/load", { method: "POST" }),
 
   exportAnki: () => request<string>("/api/export"),
+
+  getDictionary: () =>
+    request<import("./types").DictionaryEntry[]>("/api/dictionary"),
 };

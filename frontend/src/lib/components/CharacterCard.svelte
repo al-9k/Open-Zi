@@ -22,7 +22,7 @@
 
 <button
   class="character-card"
-  class:muted={!inBank}
+  class:in-bank={inBank}
   style="--card-rotate: {rotate}deg"
   {onclick}
   type="button"
@@ -66,11 +66,6 @@
   .character-card:hover {
     transform: translateY(-3px) rotate(var(--card-rotate, 0deg));
     box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.12);
-  }
-
-  .character-card.muted {
-    opacity: 0.5;
-    filter: grayscale(0.4);
   }
 
   /* Lanyard — top left */
