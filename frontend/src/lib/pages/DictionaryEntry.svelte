@@ -199,7 +199,6 @@
             {#each data.pinyin.split(';').map(p => p.trim()) as p, i}
               <span style="color: {getToneColor(getToneNumber(p))}">{numericToAccented(p)}</span>{#if i < data.pinyin.split(';').length - 1} <span class="text-ink-light">/</span> {/if}
             {/each}
-            <Speak text={text} />
           </span>
           {#if data.hsk}
             <span class="hsk-stamp">HSK {data.hsk}</span>
@@ -224,6 +223,7 @@
                   <span class="def-numeric">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
                 {/each}
               </span>
+              <Speak text={text} />
               <span class="def-dash">—</span>
               <span class="def-meanings">
                 {pair.definition.split('; ').filter(Boolean).join(' • ')}

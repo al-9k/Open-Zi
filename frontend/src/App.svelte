@@ -13,26 +13,11 @@
   let initialized = $state(false);
 
   onMount(async () => {
-    // Load previous session on startup
-    try {
-      await api.load();
-    } catch {
-      // No save file yet, that's fine
-    }
-
-    // Refresh all entries against latest dictionary data
-    try {
-      await api.refresh();
-    } catch {
-      // Refresh is best-effort
-    }
-
-    // Fetch all initial data
+    try { await api.load(); } catch {}
+    try { await api.refresh(); } catch {}
     try {
       const [chars, words, statsData] = await Promise.all([
-        api.getCharacters(),
-        api.getWords(),
-        api.getStats(),
+        api.getCharacters(), api.getWords(), api.getStats(),
       ]);
       bankDict.set(chars);
       beastiaryDict.set(words);
@@ -40,7 +25,6 @@
     } catch (e) {
       console.error('Failed to load initial data:', e);
     }
-
     initialized = true;
   });
 </script>
