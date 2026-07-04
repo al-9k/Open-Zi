@@ -126,15 +126,16 @@
   }
 
   .hsk-summary {
+    position: relative;
     display: flex;
     gap: 12px;
-    background: #f5f0e3;
-    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    background-size: 200px 200px;
+    background: #fefeff;
+    background-image: radial-gradient(circle, #c8d4e4 0.8px, transparent 0.8px);
+    background-size: 20px 20px;
     border: none;
     border-radius: 2px;
     padding: 14px 18px;
-    box-shadow: 0 1px 0 #e0d8c8, 2px 3px 10px rgba(0, 0, 0, 0.25), 4px 6px 18px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04), 2px 3px 12px rgba(0,0,0,0.25), 4px 6px 20px rgba(0,0,0,0.08);
   }
 
   .hsk-item {
@@ -177,13 +178,14 @@
   }
 
   .container {
-    background: #f5f0e3;
-    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    background-size: 200px 200px;
+    position: relative;
+    background: #fefeff;
+    background-image: radial-gradient(circle, #c8d4e4 0.8px, transparent 0.8px);
+    background-size: 20px 20px;
     border: none;
     border-radius: 2px;
     padding: 18px;
-    box-shadow: 0 1px 0 #e0d8c8, 2px 3px 10px rgba(0, 0, 0, 0.25), 4px 6px 18px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04), 2px 3px 12px rgba(0,0,0,0.25), 4px 6px 20px rgba(0,0,0,0.08);
   }
 
   .container-header {

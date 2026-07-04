@@ -39,15 +39,15 @@
     width: 100%;
     max-width: 380px;
     height: 44px;
-    background: #fefdfb;
-    border: 1px solid #d4cfc5;
+    background: #fefeff;
+    border: 1px solid #b8d4d0;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 0 #d0cbc0, 0 6px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 0 #4a8a85, 0 6px 10px rgba(0,0,0,0.10);
     transition: border-color 0.15s;
   }
   .add-bar:focus-within {
-    border-color: #e87d7d;
+    border-color: #6bb5b0;
   }
   .add-input {
     flex: 1;
@@ -69,7 +69,7 @@
     align-items: center;
     justify-content: center;
     width: 44px;
-    background: #e87d7d;
+    background: #6bb5b0;
     border: none;
     cursor: pointer;
     color: white;
@@ -77,7 +77,7 @@
     transition: background 0.15s;
   }
   .add-btn:hover {
-    background: #d46d6d;
+    background: #5aa39e;
   }
   .add-btn:disabled {
     opacity: 0.5;

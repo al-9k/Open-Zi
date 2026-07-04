@@ -7,6 +7,7 @@
   import DictionaryEntry from '$lib/pages/DictionaryEntry.svelte';
   import MyBank from '$lib/pages/MyBank.svelte';
   import MyDecks from '$lib/pages/MyDecks.svelte';
+  import SearchResults from '$lib/pages/SearchResults.svelte';
   import Settings from '$lib/pages/Settings.svelte';
 
   let initialized = $state(false);
@@ -62,6 +63,10 @@
       <MyBank />
     {:else if $currentPage === 'my-decks'}
       <MyDecks />
+    {:else if $currentPage === 'my-decks2'}
+      <div class="stub-page"><p>My Decks — coming soon</p></div>
+    {:else if $currentPage === 'search-results'}
+      <SearchResults />
     {:else if $currentPage === 'settings'}
       <Settings />
     {/if}
@@ -72,9 +77,9 @@
   .desk {
     display: flex;
     flex: 1;
-    background-color: #1a1a1c;
+    background-color: #1e2424;
     background-image:
-      url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
     background-size: 300px 300px;
   }
 
@@ -122,5 +127,16 @@
     color: #888888;
     font-family: 'Inter', sans-serif;
     margin: 0;
+  }
+
+  .stub-page {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-style: italic;
   }
 </style>

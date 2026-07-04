@@ -73,26 +73,53 @@ class Engine:
             del self.bank[char]
             return removed
 
-    def search(self, query):
+    def search(self, query, search_all=True):
         result_list = {}
         if query == "":
             return self.beastiary
 
         q = query.lower()
 
-        # Search unlocked words — match by word, pinyin, or definition
-        for word, data in self.beastiary.items():
-            pinyin = data.get("pinyin", "").lower()
-            definition = data.get("definition", "").lower()
-            if q in word or q in pinyin or q in definition:
-                result_list[word] = {"type": "w", **data}
-
-        # Search characters in bank — match by char, pinyin, or definition
+        # Priority: exact char match > char starts with > word starts with > contains
+        # Search characters in bank first
         for char, data in self.bank.items():
             pinyin = data.get("pinyin", "").lower()
             definition = data.get("definition", "").lower()
-            if q in char or q in pinyin or q in definition:
+            if char == q:
                 result_list[char] = {"type": "c", **data}
+
+        for char, data in self.bank.items():
+            if char in result_list:
+                continue
+            pinyin = data.get("pinyin", "").lower()
+            definition = data.get("definition", "").lower()
+            if char.startswith(q) or q in char or q in pinyin or q in definition:
+                result_list[char] = {"type": "c", **data}
+
+        # Search unlocked words
+        for word, data in self.beastiary.items():
+            pinyin = data.get("pinyin", "").lower()
+            definition = data.get("definition", "").lower()
+            if word == q:
+                result_list[word] = {"type": "w", **data}
+
+        for word, data in self.beastiary.items():
+            if word in result_list:
+                continue
+            pinyin = data.get("pinyin", "").lower()
+            definition = data.get("definition", "").lower()
+            if word.startswith(q) or q in word or q in pinyin or q in definition:
+                result_list[word] = {"type": "w", **data}
+
+        # Search full cedict for entries not already found
+        if search_all and q:
+            for key, data in self.cedict.items():
+                if key in result_list:
+                    continue
+                pinyin = data.get("pinyin", "").lower()
+                if q in key or q in pinyin:
+                    t = "w" if len(key) > 1 else "c"
+                    result_list[key] = {"type": t, **data}
 
         return result_list
 

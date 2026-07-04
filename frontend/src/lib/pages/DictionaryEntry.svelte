@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { dictionaryTarget, navigateTo, bankDict, beastiaryDict } from '$lib/stores';
+  import { dictionaryTarget, navigateTo, previousPage, bankDict, beastiaryDict } from '$lib/stores';
   import { api } from '$lib/api';
   import { numericToAccented, splitPronunciations, getToneNumber, getToneColor } from '$lib/utils';
   import Button3D from '$lib/components/Button3D.svelte';
@@ -18,7 +18,25 @@
   // Find unlocked words containing this character
   let unlockedWords = $state<{ word: string; data: WordData }[]>([]);
 
+  let lastTarget = $state('');
+
   onMount(async () => {
+    await loadFromTarget();
+  });
+
+  $effect(() => {
+    const t = $dictionaryTarget;
+    if (!t) return;
+    const key = t.text + '|' + t.isWord;
+    if (key !== lastTarget) {
+      lastTarget = key;
+      text = t.text;
+      isWord = t.isWord;
+      loadData();
+    }
+  });
+
+  async function loadFromTarget() {
     const target = $dictionaryTarget;
     if (!target) {
       navigateTo('dashboard');
@@ -26,9 +44,9 @@
     }
     text = target.text;
     isWord = target.isWord;
-
+    lastTarget = target.text + '|' + target.isWord;
     await loadData();
-  });
+  }
 
   async function loadData() {
     loading = true;
@@ -44,6 +62,16 @@
       if (isWord) {
         wordData = words[text] ?? null;
         inBank = [...text].some((c) => c in chars);
+
+        // Fallback: look up word in full dictionary
+        if (!wordData) {
+          try {
+            const entry = await api.getCharacter(text);
+            if (entry.pinyin) {
+              wordData = { ...entry, date: '' } as WordData;
+            }
+          } catch (e) { console.error('Word fallback failed:', e); }
+        }
 
         // Load component characters
         const comps: typeof componentChars = [];
@@ -67,10 +95,11 @@
         if (!charData) {
           try {
             const entry = await api.getCharacter(text);
+            console.log('Dictionary fallback:', text, entry);
             if (entry.pinyin) {
-              charData = entry as CharacterData;
+              charData = { ...entry, date: '' } as CharacterData;
             }
-          } catch { /* ignore */ }
+          } catch (e) { console.error('Fallback failed:', e); }
         }
 
         // Find words containing this character
@@ -131,7 +160,7 @@
   }
 
   function goBack() {
-    navigateTo($dictionaryTarget?.isWord ? 'my-bank' : 'my-bank');
+    navigateTo($previousPage);
   }
 
   let data = $derived(charData || wordData);
@@ -281,11 +310,11 @@
       {#if !isWord}
         <div class="remove-section">
           {#if inBank}
-            <Button3D variant="ghost" size="sm" onclick={handleRemove}>
+            <Button3D variant="coral" size="sm" onclick={handleRemove}>
               Remove from bank
             </Button3D>
           {:else}
-            <Button3D variant="coral" size="sm" onclick={handleAddToBank}>
+            <Button3D variant="teal" size="sm" onclick={handleAddToBank}>
               Add to bank
             </Button3D>
           {/if}
@@ -333,13 +362,14 @@
   }
 
   .entry-card {
-    background: #f5f0e3;
-    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    background-size: 200px 200px;
+    position: relative;
+    background: #fefeff;
+    background-image: radial-gradient(circle, #c8d4e4 0.8px, transparent 0.8px);
+    background-size: 20px 20px;
     border: none;
     border-radius: 2px;
     padding: 28px;
-    box-shadow: 0 1px 0 #e0d8c8, 2px 3px 10px rgba(0, 0, 0, 0.25), 4px 6px 18px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04), 2px 3px 12px rgba(0,0,0,0.25), 4px 6px 20px rgba(0,0,0,0.08);
   }
 
   .entry-header {

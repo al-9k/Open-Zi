@@ -128,7 +128,7 @@ export function getToneColor(tone: number): string {
     2: "#d4953a", // amber — rising
     3: "#6bb5b0", // teal — dipping
     4: "#5b7dbf", // blue — falling
-    5: "#bbbbbb", // grey — neutral
+    5: "#b0a090", // warm taupe — neutral
   };
   return colors[tone] || colors[5];
 }

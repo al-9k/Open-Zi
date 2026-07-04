@@ -225,7 +225,7 @@
         {#each hskGroups(sortedChars) as group}
           <div class="char-section">
             <div class="char-section-header">
-              <span class="char-section-label" style="color:#c41e3a">HSK {group.level}</span>
+              <span class="char-section-label" style="color:#e87d7d">HSK {group.level}</span>
               <span class="char-section-count">{group.chars.length} character{group.chars.length !== 1 ? 's' : ''}</span>
             </div>
             <div class="card-grid">
@@ -245,7 +245,7 @@
         {#each freqGroups(sortedChars) as group}
           <div class="char-section">
             <div class="char-section-header">
-              <span class="char-section-label">{group.start > 0 ? `#${group.start}–${group.end}` : 'Unranked'}</span>
+              <span class="char-section-label" style="color:#6bb5b0">{group.start > 0 ? `#${group.start}–${group.end}` : 'Unranked'}</span>
               <span class="char-section-count">{group.chars.length} character{group.chars.length !== 1 ? 's' : ''}</span>
             </div>
             <div class="card-grid">
@@ -290,11 +290,11 @@
         {#each wordHskGroups(sortedWords) as group}
           <div class="char-section">
             <div class="char-section-header">
-              <span class="char-section-label" style="color:#c41e3a">HSK {group.level}</span>
+              <span class="char-section-label" style="color:#e87d7d">HSK {group.level}</span>
               <span class="char-section-count">{group.words.length} word{group.words.length !== 1 ? 's' : ''}</span>
             </div>
             <div class="word-list">
-              {#each group.words as wordData}
+                  {#each group.words as wordData}
                 <button class="word-row" onclick={() => openDictionary(wordData.word, true)}>
                   <span class="word-char">{wordData.word}</span>
                   <span class="word-pinyin-cell">
@@ -327,11 +327,11 @@
         {#each wordFreqGroups(sortedWords) as group}
           <div class="char-section">
             <div class="char-section-header">
-              <span class="char-section-label">{group.start > 0 ? `#${group.start}–${group.end}` : 'Unranked'}</span>
+              <span class="char-section-label" style="color:#6bb5b0">{group.start > 0 ? `#${group.start}–${group.end}` : 'Unranked'}</span>
               <span class="char-section-count">{group.words.length} word{group.words.length !== 1 ? 's' : ''}</span>
             </div>
             <div class="word-list">
-              {#each group.words as wordData}
+                  {#each group.words as wordData}
                 <button class="word-row" onclick={() => openDictionary(wordData.word, true)}>
                   <span class="word-char">{wordData.word}</span>
                   <span class="word-pinyin-cell">
@@ -362,7 +362,7 @@
         {/each}
       {:else}
         <div class="word-list">
-          {#each sortedWords as wordData}
+              {#each sortedWords as wordData}
             <button class="word-row" onclick={() => openDictionary(wordData.word, true)}>
               <span class="word-char">{wordData.word}</span>
               <span class="word-pinyin-cell">
@@ -451,7 +451,7 @@
   }
 
   .tab.active {
-    background: #ffffff;
+    background: #fefeff;
     color: #2d2d2d;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
@@ -557,7 +557,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #ffffff;
+    background: #fefeff;
     border: 1px solid #e8e3da;
     border-radius: 50%;
     cursor: pointer;
@@ -617,15 +617,16 @@
   }
 
   .word-list {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 2px;
-    background: #f5f0e3;
-    background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    background-size: 200px 200px;
+    background: #fefeff;
+    background-image: radial-gradient(circle, #c8d4e4 0.8px, transparent 0.8px);
+    background-size: 20px 20px;
     border: none;
     border-radius: 2px;
-    box-shadow: 0 1px 0 #e0d8c8, 2px 3px 10px rgba(0, 0, 0, 0.25), 4px 6px 18px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04), 2px 3px 12px rgba(0,0,0,0.25), 4px 6px 20px rgba(0,0,0,0.08);
     overflow: hidden;
   }
 
@@ -719,7 +720,7 @@
   }
 
   .dialog {
-    background: #ffffff;
+    background: #fefeff;
     border: 1px solid #e8e5e0;
     border-radius: 4px;
     padding: 24px;

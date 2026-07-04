@@ -12,7 +12,7 @@
     html {
         height: 100%;
         font-family: "Inter", system-ui, sans-serif;
-        color: #e0d8cc;
+        color: #3a3a3a;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
@@ -22,7 +22,6 @@
         padding: 0;
         height: 100%;
         overflow: hidden;
-        background: #1a1a1c;
     }
 
     #app {
@@ -32,61 +31,91 @@
 }
 
 @layer components {
-    /* Desk surface with dot-grid paper texture */
-    .desk-surface {
-        background-color: #faf8f5;
-        background-image:
-            radial-gradient(circle, #e8e3da 0.5px, transparent 0.5px),
-            url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-        background-size:
-            20px 20px,
-            200px 200px;
+    /* Notebook paper — white with dot grid */
+    .notebook-paper {
+        background-color: #fefeff;
+        background-image: radial-gradient(
+            circle,
+            #c8d4e4 0.8px,
+            transparent 0.8px
+        );
+        background-size: 20px 20px;
+        border: none;
+        border-radius: 2px;
+        box-shadow:
+            0 1px 0 rgba(0, 0, 0, 0.04),
+            2px 3px 12px rgba(0, 0, 0, 0.25),
+            4px 6px 20px rgba(0, 0, 0, 0.08);
     }
 
-    /* Scrollbar styled like a ruler edge */
+    /* Tape on corner of notebook paper */
+    .notebook-paper::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        left: 16px;
+        width: 50px;
+        height: 16px;
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(1px);
+        z-index: 5;
+        transform: rotate(-2deg);
+        clip-path: polygon(
+            0% 25%,
+            4% 10%,
+            10% 30%,
+            16% 5%,
+            22% 25%,
+            28% 8%,
+            34% 28%,
+            40% 12%,
+            46% 20%,
+            52% 5%,
+            58% 30%,
+            64% 10%,
+            70% 25%,
+            76% 8%,
+            82% 30%,
+            88% 15%,
+            94% 25%,
+            100% 12%,
+            100% 75%,
+            94% 90%,
+            88% 70%,
+            82% 92%,
+            76% 75%,
+            70% 85%,
+            64% 70%,
+            58% 90%,
+            52% 75%,
+            46% 95%,
+            40% 80%,
+            34% 88%,
+            28% 72%,
+            22% 92%,
+            16% 75%,
+            10% 90%,
+            4% 70%,
+            0% 88%
+        );
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Scrollbar — dark for chalkboard */
     .ruler-scroll::-webkit-scrollbar {
-        width: 12px;
+        width: 10px;
     }
 
     .ruler-scroll::-webkit-scrollbar-track {
-        background: #f5f0e8;
-        border-left: 1px solid #e8e3da;
+        background: #1e1e20;
     }
 
     .ruler-scroll::-webkit-scrollbar-thumb {
-        background: repeating-linear-gradient(
-            to bottom,
-            transparent,
-            transparent 4px,
-            #d4cfc5 4px,
-            #d4cfc5 5px
-        );
-        border-left: 1px solid #e8e3da;
-        border-radius: 0;
+        background: #3a3a3d;
+        border-radius: 5px;
     }
 
     .ruler-scroll::-webkit-scrollbar-thumb:hover {
-        background: repeating-linear-gradient(
-            to bottom,
-            transparent,
-            transparent 4px,
-            #c4bfb5 4px,
-            #c4bfb5 5px
-        );
-    }
-
-    /* Paper texture overlay */
-    .paper-grain {
-        position: relative;
-    }
-
-    .paper-grain::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-        border-radius: inherit;
-        z-index: 1;
+        background: #4a4a4d;
     }
 }

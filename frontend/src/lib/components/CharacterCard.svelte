@@ -52,8 +52,11 @@
     justify-content: center;
     width: 90px;
     height: 90px;
-    background: #f5f0e3;
-    border: 1px solid #e8e3da;
+    background: #fefeff;
+    background-image:
+      radial-gradient(circle, #c8d4e4 0.6px, transparent 0.6px);
+    background-size: 16px 16px;
+    border: 1px solid #e0dce8;
     border-radius: 2px;
     box-shadow:
       0 1px 0 #e0d8c8,
