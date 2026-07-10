@@ -462,7 +462,7 @@
   .info-panel {
     width: 100%;
     background: #f8f6f2;
-    border: 1px solid #e8e5e0;
+    border: 1px solid #d0ccc4;
     border-radius: 0;
     overflow: hidden;
   }
@@ -472,7 +472,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 7px 12px;
-    border-bottom: 1px solid #e8e5e0;
+    border-bottom: 1px solid #d0ccc4;
   }
 
   .info-row:last-child {
@@ -682,7 +682,7 @@
   .words-section {
     margin-bottom: 20px;
     padding-top: 20px;
-    border-top: 1px solid #e8e5e0;
+    border-top: 1px solid #d0ccc4;
   }
 
   .words-list {
@@ -768,7 +768,7 @@
 
   .remove-section {
     padding-top: 20px;
-    border-top: 1px solid #e8e5e0;
+    border-top: 1px solid #d0ccc4;
     display: flex;
     flex-direction: column;
     gap: 8px;

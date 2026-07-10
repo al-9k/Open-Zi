@@ -1,48 +1,27 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-
-  let {
-    variant = 'coral',
-    size = 'md',
-    onclick,
-    disabled = false,
-    children,
-  }: {
-    variant?: 'coral' | 'teal' | 'ghost';
-    size?: 'sm' | 'md';
-    onclick?: () => void;
-    disabled?: boolean;
-    children: Snippet;
-  } = $props();
+  let { variant = 'red', size = 'md', onclick, disabled = false, children }:
+    { variant?: 'red' | 'green' | 'ghost'; size?: 'sm' | 'md'; onclick?: () => void; disabled?: boolean; children: Snippet } = $props();
 </script>
 
-<button {onclick} {disabled} class="btn-3d btn-{variant} btn-{size}" class:disabled type="button">
+<button {onclick} {disabled} class="btn btn-{variant} btn-{size}" class:dis={disabled} type="button">
   {@render children()}
 </button>
 
 <style>
-  .btn-3d {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-    transition: opacity 0.12s;
-    letter-spacing: 0.2px;
-    color: #fff;
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif; font-weight: 700; border: 3px solid #1a1a1a;
+    cursor: pointer; transition: all 0.1s; box-shadow: 3px 3px 0 #1a1a1a;
+    color: #fff; letter-spacing: 0.3px;
   }
-
-  .btn-3d:hover { opacity: 0.88; }
-  .btn-3d:active { opacity: 0.75; }
-  .disabled { opacity: 0.4; cursor: default; }
-
-  .btn-sm { padding: 6px 16px; font-size: 12px; }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #1a1a1a; }
+  .btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 #1a1a1a; }
+  .dis { opacity: 0.4; cursor: default; }
+  .dis:hover { transform: none; box-shadow: 3px 3px 0 #1a1a1a; }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
   .btn-md { padding: 8px 20px; font-size: 14px; }
-
-  .btn-coral { background: #c41e3a; }
-  .btn-teal { background: #5a8a7a; }
-  .btn-ghost { background: transparent; color: #8a8680; border: 1px solid #e8e5e0; }
-  .btn-ghost:hover { background: #f6f4f0; color: #3a3a3a; opacity: 1; }
+  .btn-red { background: #dc0a2d; }
+  .btn-green { background: #2a8a4a; }
+  .btn-ghost { background: #ffffff; color: #5a5550; }
 </style>

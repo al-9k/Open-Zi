@@ -12,9 +12,8 @@
     html {
         height: 100%;
         font-family: "Inter", system-ui, sans-serif;
-        color: #3a3a3a;
+        color: #1a1a1a;
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
     }
 
     body {
@@ -22,7 +21,7 @@
         padding: 0;
         height: 100%;
         overflow: hidden;
-        background: #f6f4f0;
+        background: #dc0a2d;
     }
 
     #app {
@@ -34,25 +33,18 @@
 @layer components {
     .notebook-paper {
         background-color: #ffffff;
-        border: 1px solid #e8e5e0;
-        border-radius: 0;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        border: 2px solid #1a1a1a;
+        box-shadow: 3px 3px 0 #1a1a1a;
     }
 
     .ruler-scroll::-webkit-scrollbar {
         width: 8px;
     }
-
     .ruler-scroll::-webkit-scrollbar-track {
-        background: #f0ede8;
+        background: #f0f0f0;
     }
-
     .ruler-scroll::-webkit-scrollbar-thumb {
-        background: #ccc7bf;
+        background: #dc0a2d;
         border-radius: 4px;
-    }
-
-    .ruler-scroll::-webkit-scrollbar-thumb:hover {
-        background: #b0aaa2;
     }
 }

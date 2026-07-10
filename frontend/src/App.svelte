@@ -5,7 +5,6 @@
   import Sidebar from '$lib/components/Sidebar.svelte';
   import Dashboard from '$lib/pages/Dashboard.svelte';
   import DictionaryEntry from '$lib/pages/DictionaryEntry.svelte';
-  import MyBank from '$lib/pages/MyBank.svelte';
   import MyDecks from '$lib/pages/MyDecks.svelte';
   import Decks from '$lib/pages/Decks.svelte';
   import SearchResults from '$lib/pages/SearchResults.svelte';
@@ -28,36 +27,46 @@
   });
 </script>
 
-<div class="desk">
-  <Sidebar />
-  <main class="main-area ruler-scroll">
-    {#if !initialized}
-      <LoadingScreen />
-    {:else if $currentPage === 'dashboard'}
-      <Dashboard />
-    {:else if $currentPage === 'dictionary'}
-      <DictionaryEntry />
-    {:else if $currentPage === 'my-bank'}
-      <MyBank />
-    {:else if $currentPage === 'my-decks'}
-      <MyDecks />
-    {:else if $currentPage === 'my-decks2'}
-      <Decks />
-    {:else if $currentPage === 'personal-dict'}
-      <PersonalDictionary />
-    {:else if $currentPage === 'search-results'}
-      <SearchResults />
-    {:else if $currentPage === 'settings'}
-      <Settings />
-    {/if}
-  </main>
+<div class="pokedex">
+  <div class="dex-inner">
+    <Sidebar />
+    <main class="main-area ruler-scroll">
+      {#if !initialized}
+        <LoadingScreen />
+      {:else if $currentPage === 'dashboard'}
+        <Dashboard />
+      {:else if $currentPage === 'dictionary'}
+        <DictionaryEntry />
+      {:else if $currentPage === 'my-decks'}
+        <MyDecks />
+      {:else if $currentPage === 'my-decks2'}
+        <Decks />
+      {:else if $currentPage === 'personal-dict'}
+        <PersonalDictionary />
+      {:else if $currentPage === 'search-results'}
+        <SearchResults />
+      {:else if $currentPage === 'settings'}
+        <Settings />
+      {/if}
+    </main>
+  </div>
 </div>
 
 <style>
-  .desk {
-    display: flex;
+  .pokedex {
     flex: 1;
-    background-color: #faf8f6;
+    background: #dc0a2d;
+    padding: 12px;
+    display: flex;
+  }
+
+  .dex-inner {
+    flex: 1;
+    display: flex;
+    background: #f0f0f0;
+    border: 4px solid #1a1a1a;
+    box-shadow: inset 0 0 0 2px #dc0a2d;
+    overflow: hidden;
   }
 
   .main-area {
@@ -65,5 +74,6 @@
     min-width: 0;
     display: flex;
     overflow-y: auto;
+    background: #f0f0f0;
   }
 </style>

@@ -28,50 +28,45 @@
 </script>
 
 <aside class="sidebar">
-  <div class="sidebar-stripe"></div>
   <div class="sidebar-content">
     <!-- Logo -->
-    <div class="app-title">
-      <span class="title-open">Open</span>
-      <div class="title-seal" onclick={() => {
+    <div class="logo-wrap">
+      <span class="logo-open">Open</span>
+      <div class="logo-seal" onclick={() => {
         const u = new SpeechSynthesisUtterance('Open字');
         u.lang = 'zh-CN'; u.rate = 0.8;
         speechSynthesis.speak(u);
-      }} role="button" tabindex="0" title="Pronounce" onkeydown={(e) => e.key === 'Enter' && speechSynthesis.speak(new SpeechSynthesisUtterance('Open字'))}>
-        <span class="title-zi">字</span>
+      }} role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && speechSynthesis.speak(new SpeechSynthesisUtterance('Open字'))}>
+        <span class="logo-zi">字</span>
       </div>
     </div>
 
+    <div class="dex-label">POKÉDEX</div>
+
     <!-- Search -->
     <div class="search-area">
-      <div class="search-input-wrap">
-        <input type="text" bind:value={searchQuery} placeholder="搜索..." onkeydown={(e) => e.key === 'Enter' && doSearch()} class="search-input" />
-        <button onclick={doSearch} class="search-btn" disabled={searching} aria-label="Search">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-        </button>
-      </div>
+      <input type="text" bind:value={searchQuery} placeholder="搜索..." onkeydown={(e) => e.key === 'Enter' && doSearch()} class="search-input" />
+      <button onclick={doSearch} class="search-btn" disabled={searching}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </button>
       {#if searchQuery}
         <button onclick={() => { searchQuery = ''; }} class="clear-search">clear</button>
       {/if}
     </div>
 
-    <!-- Navigation -->
     <nav class="nav-tabs">
       {#each navItems.slice(0, 4) as item}
         <button class="nav-tab" class:active={$currentPage === item.page} onclick={() => navigateTo(item.page)}>
-          <span class="nav-label">{item.label}</span>
-          {#if $currentPage === item.page}<span class="active-mark"></span>{/if}
+          {item.label}
         </button>
       {/each}
     </nav>
 
-    <!-- Settings at bottom -->
     {#each navItems.slice(4) as item}
       <button class="nav-tab settings-tab" class:active={$currentPage === item.page} onclick={() => navigateTo(item.page)}>
-        <span class="nav-label">{item.label}</span>
-        {#if $currentPage === item.page}<span class="active-mark"></span>{/if}
+        {item.label}
       </button>
     {/each}
   </div>
@@ -79,159 +74,110 @@
 
 <style>
   .sidebar {
-    position: relative;
-    width: 220px;
-    min-width: 220px;
-    height: 100vh;
-    background: #2a2a2a;
+    width: 200px;
+    min-width: 200px;
+    height: 100%;
+    background: #1a1a1a;
     display: flex;
     flex-shrink: 0;
-  }
-
-  .sidebar-stripe {
-    position: absolute;
-    top: 0; bottom: 0;
-    right: 0;
-    width: 3px;
-    background: #c41e3a;
+    border-right: 2px solid #dc0a2d;
   }
 
   .sidebar-content {
     flex: 1;
-    padding: 32px 18px 24px;
+    padding: 24px 14px 20px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
   }
 
-  .app-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-  }
-
-  .title-open {
-    font-family: 'Inter', sans-serif;
-    font-size: 26px;
-    font-weight: 800;
-    color: #ffffff;
-    letter-spacing: -0.5px;
-  }
-
-  .title-seal {
+  .logo-wrap {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
-    background: #c41e3a;
-    cursor: pointer;
-    transition: transform 0.1s;
-    margin-left: auto;
+    gap: 8px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #dc0a2d;
   }
 
-  .title-seal:hover { transform: scale(1.06); }
-  .title-seal:active { transform: scale(0.96); }
-
-  .title-zi {
-    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
-    font-size: 24px;
+  .logo-open {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
     color: #ffffff;
-    line-height: 1;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-seal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px; height: 34px;
+    background: #dc0a2d;
+    cursor: pointer;
+    transition: transform 0.1s;
+    border: 2px solid #ffffff;
+  }
+
+  .logo-seal:hover { transform: scale(1.08); }
+  .logo-seal:active { transform: scale(0.95); }
+
+  .logo-zi {
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
+    font-size: 22px; color: #ffffff; line-height: 1;
+  }
+
+  .dex-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    color: #dc0a2d;
+    letter-spacing: 3px;
+    text-align: center;
   }
 
   .search-area { position: relative; }
-
-  .search-input-wrap { position: relative; display: flex; align-items: center; }
-
   .search-input {
     width: 100%;
-    padding: 9px 34px 9px 12px;
+    padding: 8px 34px 8px 10px;
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px;
+    background: #2a2a2a;
+    border: 2px solid #3a3a3a;
     outline: none;
     color: #e0dcd6;
   }
-
-  .search-input::placeholder { color: #6a6560; }
-  .search-input:focus { border-color: #c41e3a; background: rgba(255,255,255,0.09); }
+  .search-input:focus { border-color: #dc0a2d; }
+  .search-input::placeholder { color: #5a5550; }
 
   .search-btn {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 4px;
-    color: #6a6560;
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    padding: 3px; color: #5a5550; background: none; border: none; cursor: pointer;
   }
-
-  .search-btn:hover { color: #c41e3a; }
+  .search-btn:hover { color: #dc0a2d; }
 
   .clear-search {
-    font-size: 11px;
-    color: #6a6560;
-    margin-top: 4px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    padding: 0;
+    font-size: 10px; color: #5a5550; margin-top: 3px;
+    background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; padding: 0;
   }
+  .clear-search:hover { color: #dc0a2d; }
 
-  .clear-search:hover { color: #c41e3a; }
-
-  .nav-tabs {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    flex: 1;
-  }
+  .nav-tabs { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 
   .nav-tab {
-    display: flex;
-    align-items: center;
-    padding: 10px 14px;
+    padding: 9px 12px;
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: #9a9590;
+    font-size: 12px; font-weight: 600;
+    color: #8a8580;
     background: none;
-    border: none;
+    border: 2px solid transparent;
     cursor: pointer;
-    text-align: left;
-    width: 100%;
-    transition: all 0.15s;
-    position: relative;
+    text-align: left; width: 100%;
+    transition: all 0.1s;
   }
 
-  .nav-tab:hover { color: #e0dcd6; }
+  .nav-tab:hover { color: #ffffff; }
+  .nav-tab.active { color: #ffffff; border-color: #dc0a2d; background: rgba(220,10,45,0.1); }
 
-  .nav-tab.active {
-    color: #ffffff;
-    font-weight: 600;
-    background: rgba(196,30,57,0.12);
-  }
-
-  .settings-tab { margin-top: auto; color: #8a8680; }
-
-  .active-mark {
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 6px;
-    background: #c41e3a;
-  }
-
-  .nav-label { flex: 1; }
+  .settings-tab { margin-top: auto; }
 </style>
