@@ -227,6 +227,55 @@ class Engine:
         return rows
 
 
+    def get_highest_value_char(self):
+        """Find the best character to learn next — scans top 250 unlearned chars.
+        Returns the one that unlocks the most new words."""
+        from collections import Counter
+        bank_set = set(self.bank)
+
+        # Get top unlearned characters by char_rank
+        candidates = []
+        for char, data in self.cedict.items():
+            if len(char) != 1 or char in self.bank:
+                continue
+            rank = data.get("char_rank")
+            if rank:
+                candidates.append((rank, char))
+        candidates.sort()
+        candidates = candidates[:250]
+
+        if not candidates:
+            return None
+
+        # Count unlockable words per candidate
+        counts = Counter()
+        for word in self.cedict:
+            if len(word) == 1 or word in self.beastiary:
+                continue
+            chars_in_word = set(word)
+            missing = chars_in_word - bank_set
+            if len(missing) == 1:
+                char = missing.pop()
+                if char in {c for _, c in candidates}:
+                    counts[char] += 1
+
+        if not counts:
+            return None
+
+        best_char, best_count = counts.most_common(1)[0]
+        data = self.cedict[best_char]
+        rank = data.get("char_rank")
+        coverage_add = self._rank_to_coverage(rank) - self._rank_to_coverage(rank - 1) if rank else 0
+        return {
+            "character": best_char,
+            "new_words": best_count,
+            "coverage_add": round(coverage_add, 2),
+            "pinyin": data.get("pinyin", ""),
+            "definition": data.get("definition", ""),
+            "hsk": data.get("hsk"),
+            "char_rank": data.get("char_rank"),
+        }
+
 if __name__ == "__main__":
     e = Engine()
     e.load_dictionary("sample_dict.json")

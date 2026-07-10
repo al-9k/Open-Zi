@@ -126,3 +126,12 @@ def get_dictionary():
     items.sort(key=lambda x: x["frequency"])
     items = items[:1500]
     return items
+
+
+@app.get("/api/highest-value")
+def highest_value():
+    """Return the best character to learn next (top 250 unlearned by rank)."""
+    result = engine.get_highest_value_char()
+    if result:
+        return result
+    return {"error": "no candidates"}

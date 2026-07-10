@@ -11,6 +11,7 @@
   let cotd = $state<DictionaryEntry | null>(null);
   let addText = $state(''); let addMsg = $state('');
   let loading = $state(true);
+  let hv = $state<any>(null);
 
   let coverage = $derived.by(() => {
     const m = $masteredChars;
@@ -20,7 +21,7 @@
   });
 
   onMount(async () => {
-    await Promise.all([loadStats(), loadCotd()]);
+    await Promise.all([loadStats(), loadCotd(), (async()=>{try{const r=await fetch('http://localhost:8000/api/highest-value').then(r=>r.json());if(r.character)hv=r;}catch(e){}})()]);
     loading = false;
   });
 
@@ -102,8 +103,31 @@
       </div>
     {/if}
 
-    <div class="block">
-      <AddBar bind:value={addText} onsubmit={handleAdd} />
+    {#if hv}
+      <div class="block cotd-block" style="border-color:#2a8a4a;box-shadow:3px 3px 0 #2a8a4a;" onclick={()=>openDictionary(hv.character,false)}>
+        <span class="cotd-char">{hv.character}</span>
+        <div class="cotd-info">
+          <div class="cotd-pin">
+            {#each splitPronunciations(hv.pinyin,hv.definition) as pr,pi}
+              {#if pi===0}
+                {#each pr.pinyin.split(' ').filter(Boolean) as s,si}
+                  {#if si>0}{' '}{/if}
+                  <span style="color:{getToneColor(getToneNumber(s))}">{numericToAccented(s)}</span>
+                  <span class="cotd-num">({s.toLowerCase()})</span>
+                {/each}
+              {/if}
+            {/each}
+          </div>
+          <p class="cotd-def">+{hv.new_words} word{hv.new_words!==1?'s':''} &bull; +{hv.coverage_add}% coverage</p>
+          <div class="cotd-tags">
+            {#if hv.char_rank}<span class="cotd-r">#{hv.char_rank}</span>{/if}
+            {#if hv.hsk}<span class="cotd-h">HSK {hv.hsk}</span>{/if}
+          </div>
+        </div>
+      </div>
+    {/if}
+
+    <div class="block">      <AddBar bind:value={addText} onsubmit={handleAdd} />
       {#if addMsg}<p class="add-msg">{addMsg}</p>{/if}
     </div>
 
