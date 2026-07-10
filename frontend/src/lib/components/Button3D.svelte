@@ -9,71 +9,40 @@
     children,
   }: {
     variant?: 'coral' | 'teal' | 'ghost';
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md';
     onclick?: () => void;
     disabled?: boolean;
     children: Snippet;
   } = $props();
-
-  const sizeClasses = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-5 py-2.5 text-base',
-    lg: 'px-7 py-3 text-lg',
-  };
-
-  const variantClasses = {
-    coral:
-      'bg-coral text-white border-[#c05555] shadow-[0_4px_0_#c05555,0_6px_14px_rgba(0,0,0,0.35)] active:shadow-[0_1px_0_#c05555,0_2px_4px_rgba(0,0,0,0.20)] active:translate-y-[3px]',
-    teal: 'bg-teal text-white border-[#4a8a85] shadow-[0_4px_0_#4a8a85,0_6px_14px_rgba(0,0,0,0.35)] active:shadow-[0_1px_0_#4a8a85,0_2px_4px_rgba(0,0,0,0.20)] active:translate-y-[3px]',
-    ghost:
-      'bg-white/15 text-white/80 border border-white/20 hover:bg-white/25 shadow-none active:shadow-none',
-  };
 </script>
 
-<button
-  {onclick}
-  {disabled}
-  class="btn-3d {sizeClasses[size]} {variantClasses[variant]}"
-  class:opacity-50={disabled}
-  class:cursor-not-allowed={disabled}
-  type="button"
->
-  <span class="btn-shine"></span>
+<button {onclick} {disabled} class="btn-3d btn-{variant} btn-{size}" class:disabled type="button">
   {@render children()}
 </button>
 
 <style>
   .btn-3d {
-    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: 600;
-    border-radius: 8px;
-    border-width: 0;
+    border: none;
     cursor: pointer;
-    transition: all 0.1s ease;
-    user-select: none;
-    letter-spacing: 0.3px;
-    overflow: hidden;
+    transition: opacity 0.12s;
+    letter-spacing: 0.2px;
+    color: #fff;
   }
 
-  .btn-shine {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.18) 0%,
-      transparent 45%,
-      rgba(0, 0, 0, 0.06) 100%
-    );
-    border-radius: 8px;
-    pointer-events: none;
-  }
+  .btn-3d:hover { opacity: 0.88; }
+  .btn-3d:active { opacity: 0.75; }
+  .disabled { opacity: 0.4; cursor: default; }
 
-  .btn-3d:active:not(:disabled) {
-    transform: translateY(3px);
-  }
+  .btn-sm { padding: 6px 16px; font-size: 12px; }
+  .btn-md { padding: 8px 20px; font-size: 14px; }
+
+  .btn-coral { background: #c41e3a; }
+  .btn-teal { background: #5a8a7a; }
+  .btn-ghost { background: transparent; color: #8a8680; border: 1px solid #e8e5e0; }
+  .btn-ghost:hover { background: #f6f4f0; color: #3a3a3a; opacity: 1; }
 </style>

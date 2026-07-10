@@ -97,11 +97,9 @@
     position: relative;
     width: 200px;
     height: 200px;
-    background: #fefeff;
-    background-image: radial-gradient(circle, #e0dcd4 0.5px, transparent 0.5px);
-    background-size: 12px 12px;
-    border: 1px solid #e8e3da;
-    border-radius: 2px;
+    background: #ffffff;
+    border: 1px solid #e8e5e0;
+    border-radius: 0;
     overflow: hidden;
   }
 
@@ -149,7 +147,7 @@
     font-weight: 600;
     color: #666;
     background: #fff;
-    border: 1px solid #e8e3da;
+    border: 1px solid #e8e5e0;
     border-radius: 3px;
     cursor: pointer;
   }

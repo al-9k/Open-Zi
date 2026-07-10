@@ -1,10 +1,8 @@
 <script lang="ts">
-  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import { onMount } from 'svelte';
   import { stats as statsStore, bankDict, beastiaryDict, openDictionary, navigateTo, masteredChars } from '$lib/stores';
   import { api } from '$lib/api';
   import { numericToAccented, getToneNumber, getToneColor, splitPronunciations, computeCoverage } from '$lib/utils';
-  import ClipboardCard from '$lib/components/ClipboardCard.svelte';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
   import AddBar from '$lib/components/AddBar.svelte';
   import type { StatsData, DictionaryEntry } from '$lib/types';
@@ -34,11 +32,8 @@
     try {
       const dict = await api.getDictionary();
       const seed = new Date().toDateString().split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-      const idx = seed % dict.length;
-      cotd = dict[idx];
-    } catch (e) {
-      console.error('Failed to load character of the day:', e);
-    }
+      cotd = dict[seed % dict.length];
+    } catch (e) { console.error(e); }
   }
 
   async function loadStats() {
@@ -46,9 +41,7 @@
       const data = await api.getStats();
       statsData = data;
       statsStore.set(data);
-    } catch (e) {
-      console.error('Failed to load stats:', e);
-    }
+    } catch (e) { console.error(e); }
   }
 
   async function handleAdd() {
@@ -59,34 +52,23 @@
       const parts: string[] = [];
       if (res.added.length) parts.push(`Added: ${res.added.join('')}`);
       if (res.existed.length) parts.push(`Already in bank: ${res.existed.join('')}`);
-      if (res.not_found.length) parts.push(`Not found: ${res.not_found.join('')}`);
       addMessage = parts.join(' | ');
       addMsgType = 'success';
       addText = '';
       await loadStats();
       const [chars, words] = await Promise.all([api.getCharacters(), api.getWords()]);
-      bankDict.set(chars);
-      beastiaryDict.set(words);
-    } catch (e) {
-      console.error('Add characters failed:', e);
-      addMessage = 'Failed to add characters';
-      addMsgType = 'error';
-    }
+      bankDict.set(chars); beastiaryDict.set(words);
+    } catch (e) { addMessage = 'Failed'; addMsgType = 'error'; }
   }
 
-  // Get recently added chars from timeline
-  function getRecentChars(): { char: string; hsk: number | null; frequencyRank: number | null }[] {
+  function getRecentChars() {
     if (!statsData?.char_timeline) return [];
     const entries: { char: string; date: string }[] = [];
-    for (const [date, chars] of Object.entries(statsData.char_timeline)) {
-      for (const char of chars) {
-        entries.push({ char, date });
-      }
-    }
+    for (const [date, chars] of Object.entries(statsData.char_timeline))
+      for (const char of chars) entries.push({ char, date });
     entries.sort((a, b) => b.date.localeCompare(a.date));
     return entries.slice(0, 10).map(e => ({
-      char: e.char,
-      hsk: $bankDict[e.char]?.hsk ?? null,
+      char: e.char, hsk: $bankDict[e.char]?.hsk ?? null,
       frequencyRank: $bankDict[e.char]?.frequency_rank ?? null,
     }));
   }
@@ -94,34 +76,32 @@
 
 <div class="page">
   {#if loading}
-    <LoadingScreen />
+    <slot name="loading"><p class="text-muted">Loading...</p></slot>
   {:else}
-    <!-- Stats row - clipped to clipboard -->
+    <!-- Stats -->
     <div class="stats-row">
-      <ClipboardCard title="Characters in Bank" rotate={-2} color="#fff176">
+      <div class="stat-card">
         <span class="stat-number">{statsData?.char_count ?? 0}</span>
-      </ClipboardCard>
-      <ClipboardCard title="Words Unlocked" rotate={1} color="#f48fb1">
+        <span class="stat-label">Characters</span>
+      </div>
+      <div class="stat-card">
         <span class="stat-number">{statsData?.word_count ?? 0}</span>
-      </ClipboardCard>
-      <ClipboardCard title="Dictionary Size" rotate={-1} color="#81d4fa">
+        <span class="stat-label">Words</span>
+      </div>
+      <div class="stat-card">
         <span class="stat-number">{statsData?.dictionary_count ?? 0}</span>
-      </ClipboardCard>
+        <span class="stat-label">Dictionary</span>
+      </div>
     </div>
 
-
-    <!-- Coverage meter -->
-    <div class="section coverage-section">
+    <!-- Coverage -->
+    <div class="section">
       <h2 class="section-title">Text Coverage</h2>
       <div class="coverage-bar-wrap">
-        <div class="coverage-bar">
-          <div class="coverage-fill" style="width: {learntCoverage}%"></div>
-        </div>
+        <div class="coverage-bar"><div class="coverage-fill" style="width: {learntCoverage}%"></div></div>
         <span class="coverage-pct">{learntCoverage}%</span>
       </div>
-      <p class="coverage-sub">
-        Based on HanziCraft frequency data
-      </p>
+      <p class="coverage-sub">Based on HanziCraft frequency data</p>
     </div>
 
     <!-- Character of the Day -->
@@ -144,21 +124,15 @@
             </div>
             <p class="cotd-def">
               {#each splitPronunciations(cotd.pinyin, cotd.definition) as pron, pi}
-                {#if pi === 0}
-                  {pron.definition.split('; ').filter(Boolean).join(' • ')}
-                {/if}
+                {#if pi === 0}{pron.definition.split('; ').filter(Boolean).join(' • ')}{/if}
               {/each}
               {#if splitPronunciations(cotd.pinyin, cotd.definition).length > 1}
                 <span class="cotd-more">+{splitPronunciations(cotd.pinyin, cotd.definition).length - 1} more</span>
               {/if}
             </p>
             <div class="cotd-meta">
-              {#if cotd.frequency_rank}
-                <span class="cotd-rank">#{cotd.frequency_rank}</span>
-              {/if}
-              {#if cotd.hsk}
-                <span class="cotd-hsk">HSK {cotd.hsk}</span>
-              {/if}
+              {#if cotd.frequency_rank}<span class="cotd-rank">#{cotd.frequency_rank}</span>{/if}
+              {#if cotd.hsk}<span class="cotd-hsk">HSK {cotd.hsk}</span>{/if}
             </div>
           </div>
         </button>
@@ -167,242 +141,70 @@
 
     <!-- Quick Add -->
     <div class="section">
-      <div class="tape-tl"></div>
-      <div class="tape-tr"></div>
       <h2 class="section-title">Quick Add</h2>
       <AddBar bind:value={addText} onsubmit={handleAdd} />
-      {#if addMessage}
-        <p class="add-message" class:error={addMsgType === 'error'}>{addMessage}</p>
-      {/if}
+      {#if addMessage}<p class="add-message" class:error={addMsgType === 'error'}>{addMessage}</p>{/if}
     </div>
 
     <!-- Recently Added -->
     <div class="section">
-      <div class="tape-tl"></div>
-      <div class="tape-tr"></div>
       <h2 class="section-title">Recently Added</h2>
       <div class="recent-grid">
         {#each getRecentChars() as entry}
           {@const rot = ((entry.char.charCodeAt(0) * 7) % 3) - 1}
-          <CharacterCard
-            character={entry.char}
-            hsk={entry.hsk}
-            frequencyRank={entry.frequencyRank}
-            inBank={true}
-            rotate={rot}
-            onclick={() => openDictionary(entry.char, false)}
-          />
+          <CharacterCard character={entry.char} hsk={entry.hsk} frequencyRank={entry.frequencyRank} inBank={true} rotate={rot} onclick={() => openDictionary(entry.char, false)} />
         {/each}
       </div>
-      {#if getRecentChars().length === 0}
-        <p class="empty-text">Add characters above to get started!</p>
-      {/if}
+      {#if getRecentChars().length === 0}<p class="empty-text">Add characters above to get started!</p>{/if}
     </div>
   {/if}
 </div>
 
 <style>
-  .page {
-    flex: 1;
-    min-height: 0;
-    padding: 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-  }
+  .page { flex: 1; min-height: 0; padding: 36px; display: flex; flex-direction: column; gap: 28px; }
+  .text-muted { font-size: 14px; color: #b0aaa2; font-family: 'Inter', sans-serif; }
 
-  .stats-row {
-    display: flex;
-    gap: 20px;
-  }
+  .stats-row { display: flex; gap: 16px; }
+  .stats-row > * { flex: 1; }
 
-  .stats-row > * {
-    flex: 1;
-    min-width: 0;
+  .stat-card {
+    background: #ffffff;
+    border: 1px solid #e8e5e0;
+    padding: 20px 24px;
+    display: flex; flex-direction: column; gap: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
-
-  .stat-number {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 42px;
-    font-weight: 700;
-    color: #2d2d2d;
-    display: block;
-  }
+  .stat-number { font-family: 'Inter', sans-serif; font-size: 36px; font-weight: 700; color: #3a3a3a; }
+  .stat-label { font-family: 'Inter', sans-serif; font-size: 12px; color: #b0aaa2; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; }
 
   .section {
-    position: relative;
-    background: #fefeff;
-    background-image: radial-gradient(circle, #c8d4e4 0.8px, transparent 0.8px);
-    background-size: 20px 20px;
-    border: none;
-    border-radius: 2px;
-    padding: 20px;
-    box-shadow:
-      2px 3px 10px rgba(0, 0, 0, 0.25),
-      4px 6px 18px rgba(0, 0, 0, 0.10);
+    background: #ffffff;
+    border: 1px solid #e8e5e0;
+    padding: 24px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
+  .section-title { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: #b0aaa2; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 16px; }
 
-  .section-title {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #888888;
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    margin: 0 0 16px;
-    position: relative;
-    z-index: 1;
-  }
+  .coverage-bar-wrap { display: flex; align-items: center; gap: 16px; }
+  .coverage-bar { flex: 1; height: 8px; background: #f0ede8; overflow: hidden; }
+  .coverage-fill { height: 100%; background: #c41e3a; transition: width 0.6s ease; }
+  .coverage-pct { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 700; color: #3a3a3a; min-width: 50px; }
+  .coverage-sub { font-size: 11px; color: #b0aaa2; font-family: 'Inter', sans-serif; margin: 8px 0 0; }
 
+  .cotd-card { display: flex; gap: 20px; align-items: flex-start; background: none; border: none; cursor: pointer; text-align: left; width: 100%; padding: 0; }
+  .cotd-char { font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive; font-size: 80px; color: #3a3a3a; line-height: 1; flex-shrink: 0; }
+  .cotd-info { display: flex; flex-direction: column; gap: 6px; padding-top: 6px; min-width: 0; }
+  .cotd-pinyin { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; display: flex; align-items: baseline; flex-wrap: wrap; }
+  .cotd-num { font-size: 11px; font-weight: 400; color: #b0aaa2; margin-right: 5px; }
+  .cotd-def { font-family: 'Inter', sans-serif; font-size: 14px; color: #6a6560; line-height: 1.6; margin: 0; }
+  .cotd-more { font-size: 11px; color: #c41e3a; font-style: italic; }
+  .cotd-meta { display: flex; gap: 12px; align-items: center; }
+  .cotd-rank { font-size: 11px; color: #b0aaa2; font-family: 'Inter', sans-serif; }
+  .cotd-hsk { font-size: 11px; color: #c41e3a; font-family: 'Inter', sans-serif; font-weight: 600; }
 
+  .add-message { margin-top: 10px; font-size: 13px; color: #5a8a7a; font-family: 'Inter', sans-serif; }
+  .add-message.error { color: #c41e3a; }
 
-  /* Character of the Day */
-  .cotd-card {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-align: left;
-    width: 100%;
-    padding: 0;
-  }
-
-  .cotd-char {
-    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
-    font-size: 80px;
-    color: #2d2d2d;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-
-  .cotd-info {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding-top: 8px;
-    min-width: 0;
-  }
-
-  .cotd-pinyin {
-    font-family: 'Inter', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0;
-  }
-
-  .cotd-num {
-    font-size: 11px;
-    font-weight: 400;
-    color: #bbbbbb;
-    margin-right: 5px;
-  }
-
-  .cotd-def {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: #555555;
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .cotd-more {
-    font-size: 11px;
-    color: #e87d7d;
-    font-style: italic;
-  }
-
-  .cotd-meta {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-  }
-
-  .cotd-rank {
-    font-size: 11px;
-    color: #bbbbbb;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .cotd-hsk {
-    font-size: 11px;
-    color: #c41e3a;
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-  }
-
-  /* Quick add */
-
-  .add-message {
-    margin-top: 10px;
-    font-size: 13px;
-    color: #6bb5b0;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .add-message.error {
-    color: #e87d7d;
-  }
-
-  /* Recently added */
-  .recent-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .empty-text {
-    font-size: 13px;
-    color: #bbbbbb;
-    font-style: italic;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .coverage-section {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .coverage-bar-wrap {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .coverage-bar {
-    flex: 1;
-    height: 22px;
-    background: #f0ece5;
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
-  }
-
-  .coverage-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #6bb5b0, #4a9a94);
-    border-radius: 4px;
-    transition: width 0.8s ease;
-    position: relative;
-  }
-
-  .coverage-pct {
-    font-family: "Inter", sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    color: #2d2d2d;
-  }
-
-  .coverage-sub {
-    font-family: "Inter", sans-serif;
-    font-size: 11px;
-    color: #bbbbbb;
-    margin: 0;
-  }
-
+  .recent-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+  .empty-text { font-size: 13px; color: #b0aaa2; font-style: italic; font-family: 'Inter', sans-serif; }
 </style>

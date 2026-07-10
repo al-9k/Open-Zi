@@ -8,9 +8,9 @@
   import MyBank from '$lib/pages/MyBank.svelte';
   import MyDecks from '$lib/pages/MyDecks.svelte';
   import Decks from '$lib/pages/Decks.svelte';
-  import PersonalDictionary from '$lib/pages/PersonalDictionary.svelte';
   import SearchResults from '$lib/pages/SearchResults.svelte';
   import Settings from '$lib/pages/Settings.svelte';
+  import PersonalDictionary from '$lib/pages/PersonalDictionary.svelte';
   import LoadingScreen from '$lib/components/LoadingScreen.svelte';
 
   let initialized = $state(false);
@@ -25,9 +25,7 @@
       bankDict.set(chars);
       beastiaryDict.set(words);
       stats.set(statsData);
-    } catch (e) {
-      console.error('Failed to load initial data:', e);
-    }
+    } catch (e) { console.error('Failed to load:', e); }
     initialized = true;
   });
 </script>
@@ -47,8 +45,8 @@
       <MyDecks />
     {:else if $currentPage === 'my-decks2'}
       <Decks />
-      {:else if $currentPage === 'personal-dict'}
-        <PersonalDictionary />
+    {:else if $currentPage === 'personal-dict'}
+      <PersonalDictionary />
     {:else if $currentPage === 'search-results'}
       <SearchResults />
     {:else if $currentPage === 'settings'}
@@ -61,10 +59,7 @@
   .desk {
     display: flex;
     flex: 1;
-    background-color: #1e2424;
-    background-image:
-      url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-    background-size: 300px 300px;
+    background-color: #f6f4f0;
   }
 
   .main-area {
@@ -72,55 +67,5 @@
     min-width: 0;
     display: flex;
     overflow-y: auto;
-  }
-
-  .loading-screen {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .loading-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    background: #ffffff;
-    border: 1px solid #e8e5e0;
-    border-radius: 2px;
-    padding: 32px 40px;
-    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.08);
-    transform: rotate(-1deg);
-  }
-
-  .loading-char {
-    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
-    font-size: 48px;
-    color: #c41e3a;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  .loading-text {
-    font-size: 12px;
-    color: #888888;
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-  }
-
-  .stub-page {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #888;
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    font-style: italic;
   }
 </style>

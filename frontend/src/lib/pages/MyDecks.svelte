@@ -131,12 +131,12 @@
     display: flex;
     gap: 12px;
     background: #fefeff;
-    background-image: radial-gradient(circle, #c8d4e4 0.8px, transparent 0.8px);
-    background-size: 20px 20px;
+    
+    
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     padding: 14px 18px;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.04), 2px 3px 12px rgba(0,0,0,0.25), 4px 6px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
 
   .hsk-item {
@@ -181,12 +181,12 @@
   .container {
     position: relative;
     background: #fefeff;
-    background-image: radial-gradient(circle, #c8d4e4 0.8px, transparent 0.8px);
-    background-size: 20px 20px;
+    
+    
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     padding: 18px;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.04), 2px 3px 12px rgba(0,0,0,0.25), 4px 6px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
 
   .container-header {

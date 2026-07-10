@@ -124,10 +124,10 @@
   .section {
     position: relative;
     background: #fefeff;
-    background-image: radial-gradient(circle, #c8d4e4 0.8px, transparent 0.8px);
-    background-size: 20px 20px;
+    
+    
     border: none;
-    border-radius: 2px;
+    border-radius: 0;
     padding: 20px;
     box-shadow:
       2px 3px 10px rgba(0, 0, 0, 0.25),
@@ -175,7 +175,7 @@
     height: 56px;
     background: #faf7f2;
     border: 1px solid #e8e3da;
-    border-radius: 2px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;

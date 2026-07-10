@@ -46,7 +46,7 @@
 
 <style>
   .page { flex:1; min-height:0; padding:32px; display:flex; flex-direction:column; gap:16px; }
-  .results-list { display:flex; flex-direction:column; background:#fefeff; background-image:radial-gradient(circle,#c8d4e4 0.8px,transparent 0.8px); background-size:20px 20px; border:none; border-radius:2px; box-shadow:0 1px 0 rgba(0,0,0,0.04),2px 3px 12px rgba(0,0,0,0.25),4px 6px 20px rgba(0,0,0,0.08); overflow:hidden; }
+  .results-list { display:flex; flex-direction:column; background:#fefeff; background-image:radial-gradient(circle,#c8d4e4 0.8px,transparent 0.8px); background-size:20px 20px; border:none; border-radius:2px; box-shadow: 0 1px 2px rgba(0,0,0,0.04); overflow:hidden; }
   .result-row { display:grid; grid-template-columns:120px 1fr 50px 55px; gap:10px; align-items:baseline; padding:10px 16px; background:none; border:none; border-bottom:1px solid #f0ece5; cursor:pointer; text-align:left; width:100%; }
   .result-row:hover { background:#faf8f5; }
   .result-row:last-child { border-bottom:none; }
