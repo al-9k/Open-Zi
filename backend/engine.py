@@ -142,7 +142,6 @@ class Engine:
             pass  # no save file yet, start fresh
 
     def get_stats(self):
-        # TODO: Our data needs to have HSK levels, for now the HSK key will be empty.
         char_history = defaultdict(list)
         word_history = defaultdict(list)
         hsk_chars = defaultdict(int)
@@ -170,7 +169,42 @@ class Engine:
             "hsk_words": dict(hsk_words),
             "char_timeline": dict(char_history),
             "word_timeline": dict(word_history),
+            "coverage": self._compute_coverage(),
         }
+
+    # Known coverage milestones from Chinese corpus linguistics (HanziCraft, Jun Da)
+    _COVERAGE_MILESTONES = [
+        (1, 4.09), (2, 5.6), (3, 7.02), (4, 8.18), (5, 9.28),
+        (8, 12.20), (10, 13.9), (16, 17.68), (20, 19.72), (25, 22.08),
+        (50, 30.52), (100, 40.0), (250, 55.0), (500, 75.0),
+        (1000, 90.0), (1500, 95.0), (2000, 97.0), (3000, 99.0),
+        (7594, 100.0),
+    ]
+
+    @staticmethod
+    def _rank_to_coverage(rank):
+        milestones = Engine._COVERAGE_MILESTONES
+        if rank <= 0:
+            return 0.0
+            return milestones[0][1]
+        for i in range(len(milestones) - 1):
+            r1, c1 = milestones[i]
+            r2, c2 = milestones[i + 1]
+            if r1 <= rank <= r2:
+                frac = (rank - r1) / (r2 - r1)
+                return c1 + frac * (c2 - c1)
+        return 100.0
+
+    def _compute_coverage(self):
+        """Coverage based on known corpus milestones — 的 = 4.09%."""
+        total = 0.0
+        for char, data in self.cedict.items():
+            if len(char) == 1:
+                rank = data.get("char_rank")
+                if rank and char in self.bank:
+                    marginal = self._rank_to_coverage(rank) - self._rank_to_coverage(rank - 1)
+                    total += marginal
+        return round(total, 1)
 
     def export_anki(self):
         rows = []

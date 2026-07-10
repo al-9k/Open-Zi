@@ -101,7 +101,7 @@ def get_character(char: str):
             "definition": data.get("definition", ""),
             "hsk": data.get("hsk"),
             "frequency": data.get("frequency"),
-            "frequency_rank": data.get("frequency_rank"),
+            "frequency_rank": data.get("char_rank") or data.get("frequency_rank"),
             "in_bank": char in engine.bank,
         }
     return {"character": char, "error": "not found"}
@@ -109,22 +109,20 @@ def get_character(char: str):
 
 @app.get("/api/dictionary")
 def get_dictionary():
-    """Return top 1500 single characters ranked by frequency."""
+    """Return top 3000 single characters ranked by char_rank."""
     items = []
     for char, data in engine.cedict.items():
-        if len(char) == 1 and data.get("frequency"):
+        if len(char) == 1 and data.get("char_rank"):
             items.append(
                 {
                     "character": char,
                     "pinyin": data.get("pinyin", ""),
                     "definition": data.get("definition", ""),
                     "hsk": data.get("hsk"),
-                    "frequency": data.get("frequency"),
-                    "frequency_rank": data.get("frequency_rank"),
+                    "frequency": data.get("char_rank"),
+                    "frequency_rank": data.get("char_rank"),
                 }
             )
     items.sort(key=lambda x: x["frequency"])
-    items = items[:1500]
-    for i, item in enumerate(items):
-        item["frequency_rank"] = i + 1
+    items = items[:3000]
     return items

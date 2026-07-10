@@ -27,6 +27,7 @@ export interface StatsData {
   hsk_words: Record<string, number>;
   char_timeline: Record<string, string[]>;
   word_timeline: Record<string, string[]>;
+  coverage: number;
 }
 
 export interface AddCharsResponse {

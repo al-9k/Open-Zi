@@ -99,6 +99,21 @@
       </ClipboardCard>
     </div>
 
+
+    <!-- Coverage meter -->
+    <div class="section coverage-section">
+      <h2 class="section-title">Text Coverage</h2>
+      <div class="coverage-bar-wrap">
+        <div class="coverage-bar">
+          <div class="coverage-fill" style="width: {statsData?.coverage ?? 0}%"></div>
+        </div>
+        <span class="coverage-pct">{statsData?.coverage ?? 0}%</span>
+      </div>
+      <p class="coverage-sub">
+        Based on HanziCraft frequency data
+      </p>
+    </div>
+
     <!-- Character of the Day -->
     {#if cotd}
       <div class="section">
@@ -336,4 +351,48 @@
     font-style: italic;
     font-family: 'Inter', sans-serif;
   }
+
+  .coverage-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .coverage-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .coverage-bar {
+    flex: 1;
+    height: 22px;
+    background: #f0ece5;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .coverage-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6bb5b0, #4a9a94);
+    border-radius: 4px;
+    transition: width 0.8s ease;
+    position: relative;
+  }
+
+  .coverage-pct {
+    font-family: "Inter", sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d2d2d;
+  }
+
+  .coverage-sub {
+    font-family: "Inter", sans-serif;
+    font-size: 11px;
+    color: #bbbbbb;
+    margin: 0;
+  }
+
 </style>
