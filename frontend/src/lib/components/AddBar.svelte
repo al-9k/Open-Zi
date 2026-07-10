@@ -17,7 +17,7 @@
     display: flex; width: 100%; max-width: 400px; height: 44px;
     background: #ffffff; border: 3px solid #2a2a2a; box-shadow: 3px 3px 0 #1a1a1a;
   }
-  .add-bar:focus-within { border-color: #dc0a2d; }
+  .add-bar:focus-within { border-color: #c41e3a; }
 
   .add-input {
     flex: 1; padding: 0 14px; font-family: 'Inter', sans-serif; font-size: 14px;
@@ -27,7 +27,7 @@
 
   .add-btn {
     display: flex; align-items: center; justify-content: center;
-    width: 44px; background: #dc0a2d; border: none; cursor: pointer; color: #fff;
+    width: 44px; background: #c41e3a; border: none; cursor: pointer; color: #fff;
     flex-shrink: 0; transition: opacity 0.1s;
   }
   .add-btn:hover { opacity: 0.85; }

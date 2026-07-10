@@ -108,7 +108,7 @@
     </div>
 
     <div class="block">
-      <h3 class="block-h">Recently Caught</h3>
+      <h3 class="block-h">Recently Added</h3>
       <div class="recents">
         {#each recent() as e}
           {@const r = ((e.char.charCodeAt(0)*7)%3)-1}
@@ -127,20 +127,20 @@
   .stats { display:flex; gap:10px; }
   .stats>* { flex:1; }
   .stat { background:#ffffff; border:3px solid #2a2a2a; box-shadow:3px 3px 0 #1a1a1a; padding:20px; display:flex; flex-direction:column; gap:0; }
-  .sn { font-family:'Inter',sans-serif; font-size:42px; font-weight:900; color:#dc0a2d; line-height:1; }
+  .sn { font-family:'Inter',sans-serif; font-size:42px; font-weight:900; color:#c41e3a; line-height:1; }
   .sl { font-family:'Inter',sans-serif; font-size:11px; font-weight:700; color:#5a5550; text-transform:uppercase; letter-spacing:1.5px; }
 
   .block { background:#ffffff; border:3px solid #2a2a2a; box-shadow:3px 3px 0 #1a1a1a; padding:20px; }
-  .block-h { font-family:'Inter',sans-serif; font-size:12px; font-weight:800; color:#dc0a2d; text-transform:uppercase; letter-spacing:1px; margin:0 0 14px; }
+  .block-h { font-family:'Inter',sans-serif; font-size:12px; font-weight:800; color:#c41e3a; text-transform:uppercase; letter-spacing:1px; margin:0 0 14px; }
 
   .hp-row { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
   .hp-label { font-family:'Inter',sans-serif; font-size:11px; font-weight:800; color:#5a5550; letter-spacing:1px; }
-  .hp-val { font-family:'Inter',sans-serif; font-size:24px; font-weight:900; color:#dc0a2d; }
+  .hp-val { font-family:'Inter',sans-serif; font-size:24px; font-weight:900; color:#c41e3a; }
   .hp-bar { height:12px; background:#e8e5e0; border:2px solid #1a1a1a; }
-  .hp-fill { height:100%; background:#dc0a2d; transition:width 0.6s; }
+  .hp-fill { height:100%; background:#c41e3a; transition:width 0.6s; }
   .hp-sub { font-size:10px; color:#9a9590; font-family:'Inter',sans-serif; margin:6px 0 0; }
 
-  .cotd-block { display:flex; gap:20px; align-items:flex-start; cursor:pointer; border:3px solid #dc0a2d; box-shadow:3px 3px 0 #dc0a2d; }
+  .cotd-block { display:flex; gap:20px; align-items:flex-start; cursor:pointer; border:3px solid #c41e3a; box-shadow:3px 3px 0 #c41e3a; }
   .cotd-char { font-family:'Kaiti SC','STKaiti','KaiTi','SimKai',cursive; font-size:84px; color:#1a1a1a; line-height:1; flex-shrink:0; }
   .cotd-info { display:flex; flex-direction:column; gap:6px; padding-top:6px; min-width:0; }
   .cotd-pin { font-family:'Inter',sans-serif; font-size:16px; font-weight:700; display:flex; align-items:baseline; flex-wrap:wrap; }
@@ -148,7 +148,7 @@
   .cotd-def { font-family:'Inter',sans-serif; font-size:13px; color:#5a5550; line-height:1.5; margin:0; }
   .cotd-tags { display:flex; gap:10px; }
   .cotd-r { font-size:10px; color:#9a9590; font-family:'Inter',sans-serif; font-weight:600; }
-  .cotd-h { font-size:10px; color:#dc0a2d; font-family:'Inter',sans-serif; font-weight:700; }
+  .cotd-h { font-size:10px; color:#c41e3a; font-family:'Inter',sans-serif; font-weight:700; }
 
   .add-msg { margin-top:10px; font-size:12px; color:#2a8a4a; font-family:'Inter',sans-serif; }
 

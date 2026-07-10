@@ -21,7 +21,7 @@
         padding: 0;
         height: 100%;
         overflow: hidden;
-        background: #dc0a2d;
+        background: #c41e3a;
     }
 
     #app {
@@ -44,7 +44,7 @@
         background: #f0f0f0;
     }
     .ruler-scroll::-webkit-scrollbar-thumb {
-        background: #dc0a2d;
+        background: #c41e3a;
         border-radius: 4px;
     }
 }

@@ -21,7 +21,7 @@
   .dis:hover { transform: none; box-shadow: 3px 3px 0 #1a1a1a; }
   .btn-sm { padding: 6px 14px; font-size: 12px; }
   .btn-md { padding: 8px 20px; font-size: 14px; }
-  .btn-red { background: #dc0a2d; }
+  .btn-red { background: #c41e3a; }
   .btn-green { background: #2a8a4a; }
   .btn-ghost { background: #ffffff; color: #5a5550; }
 </style>

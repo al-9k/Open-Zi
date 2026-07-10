@@ -72,7 +72,7 @@
   .card-menu {
     position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
     margin-bottom: 6px; display: flex; flex-direction: column; gap: 3px;
-    z-index: 20; background: #1a1a1a; border: 2px solid #dc0a2d;
+    z-index: 20; background: #1a1a1a; border: 2px solid #c41e3a;
     padding: 4px;
   }
 
@@ -83,7 +83,7 @@
   .h-btn:active { opacity: 0.8; }
   .h-green { background: #2a8a4a; }
   .h-gold { background: #d4952a; }
-  .h-remove { background: #dc0a2d; }
+  .h-remove { background: #c41e3a; }
 
   .card {
     position: relative; display: flex; align-items: center; justify-content: center;
@@ -99,8 +99,8 @@
 
   .card.caught { opacity: 0.55; filter: grayscale(0.6); }
 
-  .card-wrap:hover .card { transform: translateY(-3px) rotate(var(--r, 0deg)); box-shadow: 5px 5px 0 #dc0a2d; border-color: #dc0a2d; }
-  .plain-card:hover { transform: translateY(-3px) rotate(var(--r, 0deg)); box-shadow: 5px 5px 0 #dc0a2d; border-color: #dc0a2d; }
+  .card-wrap:hover .card { transform: translateY(-3px) rotate(var(--r, 0deg)); box-shadow: 5px 5px 0 #c41e3a; border-color: #c41e3a; }
+  .plain-card:hover { transform: translateY(-3px) rotate(var(--r, 0deg)); box-shadow: 5px 5px 0 #c41e3a; border-color: #c41e3a; }
 
   .card-caught {
     position: absolute; top: 2px; left: 4px;
@@ -110,7 +110,7 @@
   .card-hsk {
     position: absolute; top: 2px; right: 3px;
     font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
-    font-size: 18px; color: #dc0a2d; opacity: 0.8;
+    font-size: 18px; color: #c41e3a; opacity: 0.8;
     transform: rotate(4deg); line-height: 1; z-index: 2;
   }
 

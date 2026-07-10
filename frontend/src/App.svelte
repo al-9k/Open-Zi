@@ -55,7 +55,7 @@
 <style>
   .pokedex {
     flex: 1;
-    background: #dc0a2d;
+    background: #c41e3a;
     padding: 12px;
     display: flex;
   }
@@ -65,7 +65,7 @@
     display: flex;
     background: #f0f0f0;
     border: 4px solid #1a1a1a;
-    box-shadow: inset 0 0 0 2px #dc0a2d;
+    box-shadow: inset 0 0 0 2px #c41e3a;
     overflow: hidden;
   }
 

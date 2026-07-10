@@ -109,7 +109,7 @@ def get_character(char: str):
 
 @app.get("/api/dictionary")
 def get_dictionary():
-    """Return top 3000 single characters ranked by char_rank."""
+    """Return top 1500 single characters ranked by char_rank."""
     items = []
     for char, data in engine.cedict.items():
         if len(char) == 1 and data.get("char_rank"):
@@ -124,5 +124,5 @@ def get_dictionary():
                 }
             )
     items.sort(key=lambda x: x["frequency"])
-    items = items[:3000]
+    items = items[:1500]
     return items

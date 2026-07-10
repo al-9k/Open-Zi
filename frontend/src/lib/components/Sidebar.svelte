@@ -41,7 +41,7 @@
       </div>
     </div>
 
-    <div class="dex-label">POKÉDEX</div>
+    <div class="motto">Gotta learn 'em all</div>
 
     <!-- Search -->
     <div class="search-area">
@@ -80,7 +80,7 @@
     background: #1a1a1a;
     display: flex;
     flex-shrink: 0;
-    border-right: 2px solid #dc0a2d;
+    border-right: 2px solid #c41e3a;
   }
 
   .sidebar-content {
@@ -97,7 +97,7 @@
     justify-content: center;
     gap: 8px;
     padding-bottom: 14px;
-    border-bottom: 2px solid #dc0a2d;
+    border-bottom: 2px solid #c41e3a;
   }
 
   .logo-open {
@@ -113,7 +113,7 @@
     align-items: center;
     justify-content: center;
     width: 34px; height: 34px;
-    background: #dc0a2d;
+    background: #c41e3a;
     cursor: pointer;
     transition: transform 0.1s;
     border: 2px solid #ffffff;
@@ -127,11 +127,11 @@
     font-size: 22px; color: #ffffff; line-height: 1;
   }
 
-  .dex-label {
+  .motto {
     font-family: 'Inter', sans-serif;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
-    color: #dc0a2d;
+    color: #c41e3a;
     letter-spacing: 3px;
     text-align: center;
   }
@@ -147,20 +147,20 @@
     outline: none;
     color: #e0dcd6;
   }
-  .search-input:focus { border-color: #dc0a2d; }
+  .search-input:focus { border-color: #c41e3a; }
   .search-input::placeholder { color: #5a5550; }
 
   .search-btn {
     position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
     padding: 3px; color: #5a5550; background: none; border: none; cursor: pointer;
   }
-  .search-btn:hover { color: #dc0a2d; }
+  .search-btn:hover { color: #c41e3a; }
 
   .clear-search {
     font-size: 10px; color: #5a5550; margin-top: 3px;
     background: none; border: none; cursor: pointer; font-family: 'Inter', sans-serif; padding: 0;
   }
-  .clear-search:hover { color: #dc0a2d; }
+  .clear-search:hover { color: #c41e3a; }
 
   .nav-tabs { display: flex; flex-direction: column; gap: 4px; flex: 1; }
 
@@ -177,7 +177,7 @@
   }
 
   .nav-tab:hover { color: #ffffff; }
-  .nav-tab.active { color: #ffffff; border-color: #dc0a2d; background: rgba(220,10,45,0.1); }
+  .nav-tab.active { color: #ffffff; border-color: #c41e3a; background: rgba(220,10,45,0.1); }
 
   .settings-tab { margin-top: auto; }
 </style>

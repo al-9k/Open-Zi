@@ -19,17 +19,17 @@
     align-items: center;
     gap: 12px;
     background: #ffffff;
-    border: 1px solid #e8e5e0;
-    border-radius: 2px;
-    padding: 32px 40px;
-    box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.08);
+    border: 3px solid #2a2a2a;
+    padding: 28px 36px;
+    box-shadow: 4px 4px 0 #1a1a1a;
     transform: rotate(-1deg);
   }
 
   .loading-char {
     font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
-    font-size: 48px;
+    font-size: 52px;
     color: #c41e3a;
+    line-height: 1;
     animation: pulse 1.5s ease-in-out infinite;
   }
 
@@ -39,9 +39,11 @@
   }
 
   .loading-text {
-    font-size: 12px;
-    color: #888888;
+    font-size: 13px;
+    color: #5a5550;
     font-family: 'Inter', sans-serif;
+    font-weight: 700;
     margin: 0;
+    letter-spacing: 0.5px;
   }
 </style>

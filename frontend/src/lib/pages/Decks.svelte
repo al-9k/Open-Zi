@@ -51,7 +51,7 @@
   {:else}
     <div class="kanban">
       <!-- Learning column -->
-      <div class="column column-learning">
+      <div class="column" style="background:#fef8ec;border:3px solid #2a2a2a;box-shadow:3px 3px 0 #1a1a1a;">
         <div class="column-header">
           <span class="column-dot learning-dot"></span>
           <span class="column-title">Learning</span>
@@ -79,7 +79,7 @@
       </div>
 
       <!-- Learnt column -->
-      <div class="column column-learnt">
+      <div class="column" style="background:#eaf6ef;border:3px solid #2a2a2a;box-shadow:3px 3px 0 #1a1a1a;">
         <div class="column-header">
           <span class="column-dot learnt-dot"></span>
           <span class="column-title">Learnt</span>
@@ -151,19 +151,13 @@
     gap: 8px;
     padding-bottom: 12px;
     margin-bottom: 12px;
-    border-bottom: 1px solid #f0ece5;
+    border-bottom: 2px solid #2a2a2a;
     flex-shrink: 0;
   }
 
-  .column-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+  
 
-  .learning-dot { background: #d4953a; }
-  .learnt-dot { background: #6bb5b0; }
+  
 
   .column-title {
     font-family: 'Inter', sans-serif;

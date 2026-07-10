@@ -137,8 +137,8 @@
   .section-title {
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    font-weight: 600;
-    color: #888888;
+    font-weight: 800;
+    color: #c41e3a;
     text-transform: uppercase;
     letter-spacing: 1.2px;
     margin: 0 0 16px;
@@ -157,7 +157,7 @@
   }
 
   .msg.success {
-    color: #6bb5b0;
+    color: #2a8a4a;
   }
 
   .msg.info {
@@ -173,8 +173,8 @@
   .about-logo {
     width: 56px;
     height: 56px;
-    background: #faf7f2;
-    border: 1px solid #e8e3da;
+    background: #f8f6f2;
+    border: 2px solid #2a2a2a;
     border-radius: 0;
     display: flex;
     align-items: center;
