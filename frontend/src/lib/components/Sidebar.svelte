@@ -11,6 +11,7 @@
     { page: 'dashboard', label: 'Dashboard' },
     { page: 'my-decks', label: 'My Codex' },
     { page: 'my-decks2', label: 'My Decks' },
+    { page: 'personal-dict', label: 'Dictionary' },
     { page: 'settings', label: 'Settings' },
   ];
 
@@ -84,11 +85,11 @@
 
     <!-- Navigation tab dividers -->
     <nav class="nav-tabs">
-      {#each navItems.slice(0, 3) as item}
+      {#each navItems.slice(0, 4) as item}
         <button
           class="nav-tab"
           class:active={$currentPage === item.page}
-          style="background: {['#fff176','#81d4fa','#ce93d8'][navItems.indexOf(item)]}; box-shadow: 0 4px 0 {['#d4c940','#5aa8d4','#a870b4'][navItems.indexOf(item)]}, 0 6px 10px rgba(0,0,0,0.20);"
+          style="background: {['#fff176','#81d4fa','#ce93d8','#ffb74d'][navItems.indexOf(item)]}; box-shadow: 0 4px 0 {['#d4c940','#5aa8d4','#a870b4','#d4952a'][navItems.indexOf(item)]}, 0 6px 10px rgba(0,0,0,0.20);"
           onclick={() => {
             navigateTo(item.page);
           }}
@@ -110,7 +111,7 @@
     </div>
 
     <!-- Settings button (standalone, bottom) -->
-    {#each navItems.slice(3) as item}
+    {#each navItems.slice(4) as item}
       <button
         class="nav-tab settings-tab"
         class:active={$currentPage === item.page}

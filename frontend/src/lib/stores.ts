@@ -8,6 +8,7 @@ export type Page =
   | "my-decks"
   | "my-decks2"
   | "search-results"
+  | "personal-dict"
   | "settings";
 
 export const currentPage = writable<Page>("dashboard");
