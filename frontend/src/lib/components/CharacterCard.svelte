@@ -106,7 +106,7 @@
   .card-hover-menu {
     position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
     margin-bottom: 6px; display: flex; flex-direction: column; gap: 3px;
-    z-index: 20; background: #ffffff; border: 1px solid #e8e5e0;
+    z-index: 20; background: #2a2a2a; border: 1px solid #3a3a3a;
     padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   }
 
@@ -135,8 +135,8 @@
 
   .plain-card:hover,
   .card-wrapper:hover .character-card {
-    transform: translateY(-2px) rotate(var(--card-rotate, 0deg));
-    box-shadow: 0 2px 6px rgba(0,0,0,0.10), 0 1px 0 #c41e3a;
+    transform: translateY(-3px) rotate(var(--card-rotate, 0deg));
+    box-shadow: 0 4px 12px rgba(196,30,57,0.18);
     border-color: #c41e3a;
   }
 

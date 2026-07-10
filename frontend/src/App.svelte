@@ -22,10 +22,8 @@
       const [chars, words, statsData] = await Promise.all([
         api.getCharacters(), api.getWords(), api.getStats(),
       ]);
-      bankDict.set(chars);
-      beastiaryDict.set(words);
-      stats.set(statsData);
-    } catch (e) { console.error('Failed to load:', e); }
+      bankDict.set(chars); beastiaryDict.set(words); stats.set(statsData);
+    } catch (e) { console.error(e); }
     initialized = true;
   });
 </script>
@@ -59,7 +57,7 @@
   .desk {
     display: flex;
     flex: 1;
-    background-color: #f6f4f0;
+    background-color: #faf8f6;
   }
 
   .main-area {

@@ -28,6 +28,7 @@
 </script>
 
 <aside class="sidebar">
+  <div class="sidebar-stripe"></div>
   <div class="sidebar-content">
     <!-- Logo -->
     <div class="app-title">
@@ -60,8 +61,8 @@
     <nav class="nav-tabs">
       {#each navItems.slice(0, 4) as item}
         <button class="nav-tab" class:active={$currentPage === item.page} onclick={() => navigateTo(item.page)}>
-          {#if $currentPage === item.page}<span class="active-dot"></span>{/if}
-          <span>{item.label}</span>
+          <span class="nav-label">{item.label}</span>
+          {#if $currentPage === item.page}<span class="active-mark"></span>{/if}
         </button>
       {/each}
     </nav>
@@ -69,8 +70,8 @@
     <!-- Settings at bottom -->
     {#each navItems.slice(4) as item}
       <button class="nav-tab settings-tab" class:active={$currentPage === item.page} onclick={() => navigateTo(item.page)}>
-        {#if $currentPage === item.page}<span class="active-dot"></span>{/if}
-        <span>{item.label}</span>
+        <span class="nav-label">{item.label}</span>
+        {#if $currentPage === item.page}<span class="active-mark"></span>{/if}
       </button>
     {/each}
   </div>
@@ -78,55 +79,65 @@
 
 <style>
   .sidebar {
+    position: relative;
     width: 220px;
     min-width: 220px;
     height: 100vh;
-    background: #3a3a3a;
+    background: #2a2a2a;
     display: flex;
     flex-shrink: 0;
   }
 
+  .sidebar-stripe {
+    position: absolute;
+    top: 0; bottom: 0;
+    right: 0;
+    width: 3px;
+    background: #c41e3a;
+  }
+
   .sidebar-content {
     flex: 1;
-    padding: 28px 16px 24px;
+    padding: 32px 18px 24px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
   }
 
   .app-title {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 10px;
-    padding: 8px 0 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
   }
 
   .title-open {
     font-family: 'Inter', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 800;
     color: #ffffff;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.5px;
   }
 
   .title-seal {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
     background: #c41e3a;
     cursor: pointer;
     transition: transform 0.1s;
+    margin-left: auto;
   }
 
   .title-seal:hover { transform: scale(1.06); }
-  .title-seal:active { transform: scale(0.97); }
+  .title-seal:active { transform: scale(0.96); }
 
   .title-zi {
     font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
-    font-size: 22px;
+    font-size: 24px;
     color: #ffffff;
     line-height: 1;
   }
@@ -137,20 +148,17 @@
 
   .search-input {
     width: 100%;
-    padding: 8px 34px 8px 12px;
+    padding: 9px 34px 9px 12px;
     font-family: 'Inter', sans-serif;
     font-size: 13px;
-    color: #3a3a3a;
-    background: #4a4a4a;
-    border: 1px solid #555;
-    border-radius: 0;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
     outline: none;
-    color: #e8e5e0;
+    color: #e0dcd6;
   }
 
-  .search-input::placeholder { color: #8a8680; }
-
-  .search-input:focus { border-color: #c41e3a; background: #4f4f4f; }
+  .search-input::placeholder { color: #6a6560; }
+  .search-input:focus { border-color: #c41e3a; background: rgba(255,255,255,0.09); }
 
   .search-btn {
     position: absolute;
@@ -158,7 +166,7 @@
     top: 50%;
     transform: translateY(-50%);
     padding: 4px;
-    color: #8a8680;
+    color: #6a6560;
     background: none;
     border: none;
     cursor: pointer;
@@ -170,7 +178,7 @@
 
   .clear-search {
     font-size: 11px;
-    color: #8a8680;
+    color: #6a6560;
     margin-top: 4px;
     background: none;
     border: none;
@@ -184,43 +192,46 @@
   .nav-tabs {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
     flex: 1;
   }
 
   .nav-tab {
     display: flex;
     align-items: center;
-    gap: 10px;
     padding: 10px 14px;
     font-family: 'Inter', sans-serif;
     font-size: 13px;
     font-weight: 500;
-    color: #b0aaa2;
+    color: #9a9590;
     background: none;
     border: none;
-    border-radius: 0;
     cursor: pointer;
     text-align: left;
     width: 100%;
-    transition: all 0.12s;
+    transition: all 0.15s;
+    position: relative;
   }
 
-  .nav-tab:hover { color: #e8e5e0; background: rgba(255,255,255,0.04); }
+  .nav-tab:hover { color: #e0dcd6; }
 
-  .nav-tab.active { color: #ffffff; background: rgba(196,30,57,0.15); font-weight: 600; }
-
-  .settings-tab {
-    margin-top: auto;
-    color: #8a8680;
+  .nav-tab.active {
+    color: #ffffff;
+    font-weight: 600;
+    background: rgba(196,30,57,0.12);
   }
 
-  .settings-tab.active { color: #e8e5e0; background: rgba(196,30,57,0.12); }
+  .settings-tab { margin-top: auto; color: #8a8680; }
 
-  .active-dot {
-    width: 5px;
-    height: 5px;
+  .active-mark {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
     background: #c41e3a;
-    flex-shrink: 0;
   }
+
+  .nav-label { flex: 1; }
 </style>
