@@ -192,161 +192,170 @@
     <p class="text-ink-grey text-sm">Loading...</p>
   {:else if data}
     <div class="entry-card">
-      <!-- Header -->
-      <div class="entry-header">
-        {#if !isWord}
-          <StrokeOrder character={text} />
-        {:else}
-          <span class="entry-char">{text}</span>
-        {/if}
-        <div class="entry-meta">
-          <span class="entry-pinyin">
+      <div class="entry-layout">
+        <div class="entry-body">
+
+          <!-- Pinyin header -->
+          <div class="entry-pinyin-row">
             {#each data.pinyin.split(';').map(p => p.trim()) as p, i}
-              <span style="color: {getToneColor(getToneNumber(p))}">{numericToAccented(p)}</span>{#if i < data.pinyin.split(';').length - 1} <span class="text-ink-light">/</span> {/if}
+              <span style="color: {getToneColor(getToneNumber(p))}">{numericToAccented(p)}</span>{#if i < data.pinyin.split(';').length - 1} <span class="text-ink-light"> / </span> {/if}
             {/each}
-          </span>
-          {#if data.hsk}
-            <span class="hsk-stamp">HSK {data.hsk}</span>
+          </div>
+
+          <!-- Definitions as subsections -->
+          <div class="definitions-section">
+            <h3 class="section-label">Definitions</h3>
+            {#if pronPairs.length > 0}
+              {#each pronPairs as pair, i}
+                <div class="def-subsection">
+                  <div class="def-subheader">
+                    <span class="def-pinyin-group">
+                      {#each pair.pinyin.split(' ').filter(Boolean) as syl, si}
+                        {#if si > 0}{' '}{/if}
+                        <span class="def-pinyin" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                        <span class="def-numeric">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+                      {/each}
+                    </span>
+                    <Speak text={text} />
+                  </div>
+                  <ul class="def-bullets">
+                    {#each pair.definition.split('; ').filter(Boolean) as meaning}
+                      <li class="def-bullet">{meaning}</li>
+                    {/each}
+                  </ul>
+                </div>
+              {/each}
+            {:else}
+              <p class="def-text">{data.definition}</p>
+            {/if}
+          </div>
+
+          <!-- Add/Remove button (characters only) -->
+          {#if !isWord}
+            <div class="remove-section">
+              {#if inBank}
+                <Button3D variant="coral" size="sm" onclick={handleRemove}>
+                  Remove from bank
+                </Button3D>
+              {:else}
+                <Button3D variant="teal" size="sm" onclick={handleAddToBank}>
+                  Add to bank
+                </Button3D>
+              {/if}
+              {#if removeMsg}
+                <p class="remove-msg">{removeMsg}</p>
+              {/if}
+            </div>
           {/if}
-          {#if 'frequency_rank' in data && data.frequency_rank}
-            <span class="freq-badge">#{data.frequency_rank}</span>
+
+          {#if isWord && !wordData}
+            <p class="not-unlocked">This word hasn't been unlocked yet. Add its characters to your bank first.</p>
           {/if}
-        </div>
-      </div>
 
-
-
-      <!-- Definitions -->
-      <div class="definitions-section">
-        <h3 class="section-label">Definitions</h3>
-        {#if pronPairs.length > 0}
-          <ol class="def-list">
-          {#each pronPairs as pair, i}
-            <li class="def-item">
-              <span class="def-pinyin-group">
-                {#each pair.pinyin.split(' ').filter(Boolean) as syl, si}
-                  {#if si > 0}{' '}{/if}
-                  <span class="def-pinyin" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
-                  <span class="def-numeric">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+          <!-- Character-specific: unlocked words -->
+          {#if !isWord && inBank && unlockedWords.length > 0}
+            <div class="words-section">
+              <h3 class="section-label">Unlocked Words</h3>
+              <div class="words-list">
+                {#each unlockedWords as { word, data: wData }}
+                  <button class="word-row" onclick={() => { dictionaryTarget.set({ text: word, isWord: true }); }}>
+                    <span class="word-text">{word}</span>
+                    <span class="word-pinyin-cell">
+                      {#each splitPronunciations(wData.pinyin, wData.definition) as pron, pi}
+                        {#if pi === 0}
+                          {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                            {#if si > 0}{' '}{/if}
+                            <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                            <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+                          {/each}
+                        {/if}
+                      {/each}
+                    </span>
+                    <span class="word-def-cell">
+                      {#each splitPronunciations(wData.pinyin, wData.definition) as pron, pi}
+                        {#if pi === 0}
+                          <span class="word-meanings">{pron.definition.split('; ').filter(Boolean).join(' • ')}</span>
+                          {#if splitPronunciations(wData.pinyin, wData.definition).length > 1}
+                            <span class="word-more">+{splitPronunciations(wData.pinyin, wData.definition).length - 1} more</span>
+                          {/if}
+                        {/if}
+                      {/each}
+                    </span>
+                  </button>
                 {/each}
-              </span>
-              <Speak text={text} />
-              <span class="def-dash">—</span>
-              <span class="def-meanings">
-                {pair.definition.split('; ').filter(Boolean).join(' • ')}
-              </span>
-            </li>
-          {/each}
-        </ol>
-        {:else}
-          <p class="def-text">{data.definition}</p>
-        {/if}
-      </div>
+              </div>
+            </div>
+          {/if}
 
-      <!-- Character-specific: unlocked words -->
-      {#if !isWord && inBank && unlockedWords.length > 0}
-        <div class="words-section">
-          <h3 class="section-label">Unlocked Words</h3>
-          <div class="words-list">
-            {#each unlockedWords as { word, data: wData }}
-              <button
-                class="word-row"
-                onclick={() => {
-                  dictionaryTarget.set({ text: word, isWord: true });
-                }}
-              >
-                <span class="word-text">{word}</span>
-                <span class="word-pinyin-cell">
-                  {#each splitPronunciations(wData.pinyin, wData.definition) as pron, pi}
-                    {#if pi === 0}
-                      {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
-                        {#if si > 0}{' '}{/if}
-                        <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
-                        <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
+          <!-- Component characters (for words) -->
+          {#if isWord && componentChars.length > 0}
+            <div class="words-section">
+              <h3 class="section-label">Characters</h3>
+              <div class="words-list">
+                {#each componentChars as cc}}
+                  <button class="word-row" onclick={() => { dictionaryTarget.set({ text: cc.char, isWord: false }); }}>
+                    <span class="word-text">{cc.char}</span>
+                    <span class="word-pinyin-cell">
+                      {#each splitPronunciations(cc.pinyin, cc.definition) as pron, pi}
+                        {#if pi === 0}
+                          {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
+                            {#if si > 0}{' '}{/if}
+                            <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
+                            <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c2) => c2.toLowerCase())})</span>
+                          {/each}
+                        {/if}
                       {/each}
-                    {/if}
-                  {/each}
-                </span>
-                <span class="word-def-cell">
-                  {#each splitPronunciations(wData.pinyin, wData.definition) as pron, pi}
-                    {#if pi === 0}
-                      <span class="word-meanings">
-                        {pron.definition.split('; ').filter(Boolean).join(' • ')}
-                      </span>
-                      {#if splitPronunciations(wData.pinyin, wData.definition).length > 1}
-                        <span class="word-more">+{splitPronunciations(wData.pinyin, wData.definition).length - 1} more</span>
-                      {/if}
-                    {/if}
-                  {/each}
-                </span>
-              </button>
-            {/each}
-          </div>
-        </div>
-      {/if}
-
-      <!-- Component characters (for words) -->
-      {#if isWord && componentChars.length > 0}
-        <div class="words-section">
-          <h3 class="section-label">Characters</h3>
-          <div class="words-list">
-            {#each componentChars as cc}
-              <button class="word-row" onclick={() => { dictionaryTarget.set({ text: cc.char, isWord: false }); }}>
-                <span class="word-text">{cc.char}</span>
-                <span class="word-pinyin-cell">
-                  {#each splitPronunciations(cc.pinyin, cc.definition) as pron, pi}
-                    {#if pi === 0}
-                      {#each pron.pinyin.split(' ').filter(Boolean) as syl, si}
-                        {#if si > 0}{' '}{/if}
-                        <span class="word-pinyin-colored" style="color: {getToneColor(getToneNumber(syl))}">{numericToAccented(syl)}</span>
-                        <span class="word-pinyin-num">({syl.replace(/[A-Z]/g, (c2) => c2.toLowerCase())})</span>
+                    </span>
+                    <span class="word-def-cell">
+                      {#each splitPronunciations(cc.pinyin, cc.definition) as pron, pi}
+                        {#if pi === 0}
+                          <span class="word-meanings">{pron.definition.split('; ').filter(Boolean).join(' • ')}</span>
+                          {#if splitPronunciations(cc.pinyin, cc.definition).length > 1}
+                            <span class="word-more">+{splitPronunciations(cc.pinyin, cc.definition).length - 1} more</span>
+                          {/if}
+                        {/if}
                       {/each}
-                    {/if}
-                  {/each}
-                </span>
-                <span class="word-def-cell">
-                  {#each splitPronunciations(cc.pinyin, cc.definition) as pron, pi}
-                    {#if pi === 0}
-                      <span class="word-meanings">{pron.definition.split('; ').filter(Boolean).join(' • ')}</span>
-                      {#if splitPronunciations(cc.pinyin, cc.definition).length > 1}
-                        <span class="word-more">+{splitPronunciations(cc.pinyin, cc.definition).length - 1} more</span>
-                      {/if}
-                    {/if}
-                  {/each}
-                </span>
-              </button>
-            {/each}
-          </div>
-        </div>
-      {/if}
+                    </span>
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {/if}
 
-      <!-- Add/Remove button (characters only) -->
-      {#if !isWord}
-        <div class="remove-section">
-          {#if inBank}
-            <Button3D variant="coral" size="sm" onclick={handleRemove}>
-              Remove from bank
-            </Button3D>
+        </div>
+
+        <!-- Sidebar — Wikipedia infobox style -->
+        <div class="entry-sidebar">
+          {#if !isWord}
+            <StrokeOrder character={text} />
           {:else}
-            <Button3D variant="teal" size="sm" onclick={handleAddToBank}>
-              Add to bank
-            </Button3D>
+            <span class="sidebar-char">{text}</span>
           {/if}
-          {#if removeMsg}
-            <p class="remove-msg">{removeMsg}</p>
-          {/if}
+          <div class="info-panel">
+            {#if data.hsk}
+              <div class="info-row">
+                <span class="info-label">HSK</span>
+                <span class="info-value hsk-value">{data.hsk}</span>
+              </div>
+            {/if}
+            {#if 'frequency_rank' in data && data.frequency_rank}
+              <div class="info-row">
+                <span class="info-label">Rank</span>
+                <span class="info-value">#{data.frequency_rank}</span>
+              </div>
+            {/if}
+            <div class="info-row">
+              <span class="info-label">Type</span>
+              <span class="info-value">{isWord ? 'word' : 'character'}</span>
+            </div>
+          </div>
         </div>
-      {/if}
-
-      {#if isWord && !wordData}
-        <p class="not-unlocked">This word hasn't been unlocked yet. Add its characters to your bank first.</p>
-      {/if}
+      </div>
     </div>
   {:else}
     <p class="not-found">Not found in bank or dictionary.</p>
   {/if}
 </div>
-
 <style>
   .page {
     flex: 1;
@@ -386,35 +395,92 @@
     box-shadow: 0 1px 0 rgba(0,0,0,0.04), 2px 3px 12px rgba(0,0,0,0.25), 4px 6px 20px rgba(0,0,0,0.08);
   }
 
-  .entry-header {
+  .entry-layout {
     display: flex;
+    gap: 32px;
     align-items: flex-start;
-    gap: 24px;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
+  }
+
+  .entry-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .entry-sidebar {
+    flex-shrink: 0;
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .info-panel {
+    width: 100%;
+    background: #faf8f5;
+    border: 1px solid #e8e3da;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 12px;
     border-bottom: 1px solid #f0ece5;
   }
 
-  .entry-char {
+  .info-row:last-child {
+    border-bottom: none;
+  }
+
+  .info-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #bbbbbb;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .info-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2d2d2d;
+  }
+
+  .hsk-value {
+    color: #c41e3a;
+  }
+
+  .sidebar-char {
     font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
-    font-size: 88px;
+    font-size: 120px;
     color: #2d2d2d;
     line-height: 1;
   }
 
-  .entry-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding-top: 4px;
-    flex: 1;
+  .type-badge {
+    font-size: 10px;
+    color: #bbbbbb;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid #e8e3da;
+    padding: 2px 8px;
+    border-radius: 2px;
   }
 
-  .entry-pinyin {
-    font-size: 21px;
+
+
+  .entry-pinyin-row {
+    font-size: 22px;
     font-weight: 500;
     color: #888888;
     font-family: 'Inter', sans-serif;
+    margin-bottom: 10px;
   }
 
   .hsk-stamp {
@@ -454,33 +520,19 @@
     margin-bottom: 20px;
   }
 
-  .def-list {
-    list-style: none;
-    counter-reset: def-counter;
-    padding: 0;
-    margin: 0;
+  .def-subsection {
+    margin-bottom: 16px;
+  }
+
+  .def-subsection:last-child {
+    margin-bottom: 0;
+  }
+
+  .def-subheader {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 8px;
-  }
-
-  .def-item {
-    display: flex;
-    align-items: baseline;
-    flex-wrap: wrap;
-    gap: 0;
-    min-width: 0;
-  }
-
-  .def-item::before {
-    counter-increment: def-counter;
-    content: counter(def-counter) '. ';
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #bbbbbb;
-    margin-right: 4px;
-    flex-shrink: 0;
+    margin-bottom: 6px;
   }
 
   .def-pinyin-group {
@@ -507,19 +559,20 @@
     flex-shrink: 0;
   }
 
-  .def-dash {
-    color: #cccccc;
-    font-size: 14px;
-    margin: 0 4px;
-    flex-shrink: 0;
+  .def-bullets {
+    list-style: disc;
+    padding-left: 28px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
-  .def-meanings {
+  .def-bullet {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     color: #555555;
     line-height: 1.6;
-    min-width: 0;
   }
 
   .def-text {
