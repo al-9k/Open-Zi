@@ -50,7 +50,7 @@
   .result-row { display:grid; grid-template-columns:120px 1fr 50px 55px; gap:10px; align-items:baseline; padding:10px 16px; background:none; border:none; border-bottom:1px solid #f0ece5; cursor:pointer; text-align:left; width:100%; }
   .result-row:hover { background:#faf8f5; }
   .result-row:last-child { border-bottom:none; }
-  .r-char { font-family:'Ma Shan Zheng',cursive; font-size:26px; color:#2d2d2d; line-height:1.2; }
+  .r-char { font-family:'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive; font-size:26px; color:#2d2d2d; line-height:1.2; }
   .r-meta { font-family:'Inter',sans-serif; font-size:13px; line-height:1.4; display:flex; align-items:baseline; flex-wrap:wrap; gap:0; min-width:0; }
   .rp-colored { font-weight:600; font-size:13px; margin-right:1px; white-space:nowrap; }
   .rp-num { font-size:10px; color:#bbb; margin-right:5px; white-space:nowrap; }
@@ -58,6 +58,6 @@
   .rp-def { color:#555; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .rp-more { font-size:10px; color:#e87d7d; font-style:italic; margin-left:4px; flex-shrink:0; white-space:nowrap; }
   .r-type { font-size:10px; color:#bbb; font-family:'Inter',sans-serif; text-align:right; text-transform:uppercase; }
-  .r-hsk { font-size:10px; color:#c41e3a; font-family:'Ma Shan Zheng',cursive; text-align:right; }
+  .r-hsk { font-size:10px; color:#c41e3a; font-family:'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive; text-align:right; }
   .empty { font-size:14px; color:#bbb; font-style:italic; font-family:'Inter',sans-serif; padding:20px 0; }
 </style>

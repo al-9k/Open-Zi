@@ -182,7 +182,7 @@
   }
 
   .about-zi {
-    font-family: 'Ma Shan Zheng', cursive;
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
     font-size: 34px;
     color: #c41e3a;
     line-height: 1;

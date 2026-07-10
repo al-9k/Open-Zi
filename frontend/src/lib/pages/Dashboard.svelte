@@ -260,7 +260,7 @@
   }
 
   .cotd-char {
-    font-family: 'Ma Shan Zheng', cursive;
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
     font-size: 80px;
     color: #2d2d2d;
     line-height: 1;

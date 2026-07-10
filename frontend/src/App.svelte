@@ -95,7 +95,7 @@
   }
 
   .loading-char {
-    font-family: 'Ma Shan Zheng', cursive;
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
     font-size: 48px;
     color: #c41e3a;
     animation: pulse 1.5s ease-in-out infinite;

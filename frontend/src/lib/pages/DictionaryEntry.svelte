@@ -5,6 +5,7 @@
   import { numericToAccented, splitPronunciations, getToneNumber, getToneColor } from '$lib/utils';
   import Button3D from '$lib/components/Button3D.svelte';
   import Speak from '$lib/components/Speak.svelte';
+  import StrokeOrder from '$lib/components/StrokeOrder.svelte';
   import type { CharacterData, WordData, BankDict, BeastiaryDict } from '$lib/types';
 
   let text = $state('');
@@ -193,7 +194,11 @@
     <div class="entry-card">
       <!-- Header -->
       <div class="entry-header">
-        <span class="entry-char">{text}</span>
+        {#if !isWord}
+          <StrokeOrder character={text} />
+        {:else}
+          <span class="entry-char">{text}</span>
+        {/if}
         <div class="entry-meta">
           <span class="entry-pinyin">
             {#each data.pinyin.split(';').map(p => p.trim()) as p, i}
@@ -208,6 +213,8 @@
           {/if}
         </div>
       </div>
+
+
 
       <!-- Definitions -->
       <div class="definitions-section">
@@ -382,14 +389,14 @@
   .entry-header {
     display: flex;
     align-items: flex-start;
-    gap: 20px;
+    gap: 24px;
     margin-bottom: 24px;
     padding-bottom: 20px;
     border-bottom: 1px solid #f0ece5;
   }
 
   .entry-char {
-    font-family: 'Ma Shan Zheng', cursive;
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
     font-size: 88px;
     color: #2d2d2d;
     line-height: 1;
@@ -399,7 +406,8 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    padding-top: 8px;
+    padding-top: 4px;
+    flex: 1;
   }
 
   .entry-pinyin {
@@ -440,6 +448,7 @@
     letter-spacing: 1.5px;
     margin: 0 0 12px;
   }
+
 
   .definitions-section {
     margin-bottom: 20px;
@@ -551,7 +560,7 @@
   }
 
   .word-text {
-    font-family: 'Ma Shan Zheng', cursive;
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
     font-size: 28px;
     color: #2d2d2d;
     line-height: 1.2;

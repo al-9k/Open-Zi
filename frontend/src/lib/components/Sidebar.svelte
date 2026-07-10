@@ -267,7 +267,7 @@
   }
 
   .title-zi {
-    font-family: 'Ma Shan Zheng', cursive;
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
     font-size: 24px;
     color: #ffffff;
     line-height: 1;

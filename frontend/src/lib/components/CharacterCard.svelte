@@ -110,7 +110,7 @@
     position: absolute;
     top: 2px;
     right: 5px;
-    font-family: 'Ma Shan Zheng', cursive;
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
     font-size: 22px;
     color: #c41e3a;
     opacity: 0.8;
@@ -121,7 +121,7 @@
 
   /* Character — center */
   .character {
-    font-family: 'Ma Shan Zheng', cursive;
+    font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
     font-size: 48px;
     color: #2d2d2d;
     line-height: 1;

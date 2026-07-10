@@ -117,7 +117,7 @@
 
 <style>
   .page { flex:1; min-height:0; padding:32px; display:flex; flex-direction:column; gap:20px; }
-  .page-title { font-family:'Ma Shan Zheng',cursive; font-size:36px; color:#2d2d2d; margin:0; line-height:1; }
+  .page-title { font-family:'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive; font-size:36px; color:#2d2d2d; margin:0; line-height:1; }
   .loading-text { font-size:14px; color:#888; font-family:'Inter',sans-serif; }
   .levels-list { display:flex; flex-direction:column; gap:8px; }
   .level-section { background:#fff; border:1px solid #e8e5e0; border-radius:2px; box-shadow:2px 3px 8px rgba(0,0,0,0.04); overflow:hidden; }
@@ -125,7 +125,7 @@
   .level-header { display:flex; align-items:center; justify-content:space-between; width:100%; padding:14px 18px; background:none; border:none; cursor:pointer; text-align:left; }
   .level-header:hover { background:#faf8f5; }
   .level-header-left { display:flex; align-items:center; gap:20px; }
-  .level-hsk { font-family:'Ma Shan Zheng',cursive; font-size:28px; color:#c41e3a; line-height:1; min-width:70px; }
+  .level-hsk { font-family:'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive; font-size:28px; color:#c41e3a; line-height:1; min-width:70px; }
   .level-stats { display:flex; flex-direction:column; gap:4px; }
   .stat-row { display:flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; }
   .stat-label { font-size:11px; color:#bbb; text-transform:uppercase; letter-spacing:0.8px; min-width:65px; }
@@ -139,7 +139,7 @@
   .word-row { display:grid; grid-template-columns:90px 160px 1fr; gap:18px; align-items:baseline; width:100%; padding:10px 18px; background:none; border:none; border-bottom:1px solid #f8f5f0; cursor:pointer; text-align:left; }
   .word-row:hover { background:#faf8f5; }
   .word-row:last-child { border-bottom:none; }
-  .word-char { font-family:'Ma Shan Zheng',cursive; font-size:26px; color:#2d2d2d; line-height:1.2; }
+  .word-char { font-family:'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive; font-size:26px; color:#2d2d2d; line-height:1.2; }
   .word-pinyin-cell { font-family:'Inter',sans-serif; font-size:13px; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .word-def-cell { font-family:'Inter',sans-serif; font-size:13px; line-height:1.4; overflow:hidden; display:flex; align-items:baseline; gap:0; min-width:0; }
   .wp-colored { font-weight:600; font-size:13px; margin-right:1px; white-space:nowrap; }
