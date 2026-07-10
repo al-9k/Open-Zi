@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import { onMount } from 'svelte';
   import { stats as statsStore, bankDict, beastiaryDict, openDictionary, navigateTo, masteredChars } from '$lib/stores';
   import { api } from '$lib/api';
@@ -93,7 +94,7 @@
 
 <div class="page">
   {#if loading}
-    <p class="text-ink-grey text-sm">Loading...</p>
+    <LoadingScreen />
   {:else}
     <!-- Stats row - clipped to clipboard -->
     <div class="stats-row">

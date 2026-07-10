@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import { onMount } from 'svelte';
   import { dictionaryTarget, navigateTo, previousPage, bankDict, beastiaryDict, masteredChars, markMastered, markLearning } from '$lib/stores';
   import { api } from '$lib/api';
@@ -216,7 +217,7 @@
   </button>
 
   {#if loading}
-    <p class="text-ink-grey text-sm">Loading...</p>
+    <LoadingScreen />
   {:else if data}
     <div class="entry-card">
       <div class="entry-layout">

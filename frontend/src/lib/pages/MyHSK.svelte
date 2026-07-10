@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import { onMount } from 'svelte';
   import { bankDict, beastiaryDict, openDictionary } from '$lib/stores';
   import { api } from '$lib/api';
@@ -50,7 +51,7 @@
 <div class="page">
   <h1 class="page-title">HSK Levels</h1>
   {#if loading}
-    <p class="loading-text">Loading...</p>
+    <LoadingScreen />
   {:else}
     <div class="levels-list">
       {#each [1, 2, 3, 4, 5, 6] as level}

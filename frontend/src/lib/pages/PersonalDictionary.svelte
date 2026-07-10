@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import { onMount } from 'svelte';
   import { bankDict, beastiaryDict, openDictionary } from '$lib/stores';
   import { api } from '$lib/api';
@@ -49,7 +50,7 @@
 </script>
 
 <div class="page">
-  {#if loading}<p class="lt">Loading...</p>{:else}
+  {#if loading}<LoadingScreen />{:else}
     <div class="hsk-summary">
       {#each [1,2,3,4,5,6] as lv}
         {@const p = hskProgress(lv)}

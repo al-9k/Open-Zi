@@ -1,4 +1,5 @@
 <script lang="ts">
+  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import { onMount } from 'svelte';
   import { bankDict, beastiaryDict, openDictionary, masteredChars, markMastered, markLearning } from '$lib/stores';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
@@ -46,7 +47,7 @@
 
 <div class="page">
   {#if loading}
-    <p class="loading-text">Loading...</p>
+    <LoadingScreen />
   {:else}
     <div class="kanban">
       <!-- Learning column -->

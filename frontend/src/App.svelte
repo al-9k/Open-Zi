@@ -11,6 +11,7 @@
   import PersonalDictionary from '$lib/pages/PersonalDictionary.svelte';
   import SearchResults from '$lib/pages/SearchResults.svelte';
   import Settings from '$lib/pages/Settings.svelte';
+  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
 
   let initialized = $state(false);
 
@@ -35,12 +36,7 @@
   <Sidebar />
   <main class="main-area ruler-scroll">
     {#if !initialized}
-      <div class="loading-screen">
-        <div class="loading-card">
-          <span class="loading-char">字</span>
-          <p class="loading-text">Loading...</p>
-        </div>
-      </div>
+      <LoadingScreen />
     {:else if $currentPage === 'dashboard'}
       <Dashboard />
     {:else if $currentPage === 'dictionary'}
