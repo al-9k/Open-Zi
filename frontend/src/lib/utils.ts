@@ -132,3 +132,35 @@ export function getToneColor(tone: number): string {
   };
   return colors[tone] || colors[5];
 }
+
+/** HanziCraft coverage milestones: (rank, cumulative coverage %) */
+const COVERAGE_MILESTONES: [number, number][] = [
+  [1, 4.09], [2, 5.6], [3, 7.02], [4, 8.18], [5, 9.28],
+  [8, 12.20], [10, 13.9], [16, 17.68], [20, 19.72], [25, 22.08],
+  [50, 30.52], [100, 40.0], [250, 55.0], [500, 75.0],
+  [1000, 90.0], [1500, 95.0], [2000, 97.0], [3000, 99.0],
+  [7594, 100.0],
+];
+
+function rankToCoverage(rank: number): number {
+  if (rank <= 0) return 0;
+  for (let i = 0; i < COVERAGE_MILESTONES.length - 1; i++) {
+    const [r1, c1] = COVERAGE_MILESTONES[i];
+    const [r2, c2] = COVERAGE_MILESTONES[i + 1];
+    if (r1 <= rank && rank <= r2) {
+      return c1 + ((rank - r1) / (r2 - r1)) * (c2 - c1);
+    }
+  }
+  return 100;
+}
+
+export function computeCoverage(chars: Record<string, { char_rank?: number | null }>): number {
+  let total = 0;
+  for (const [, data] of Object.entries(chars)) {
+    const rank = data.char_rank;
+    if (rank) {
+      total += rankToCoverage(rank) - rankToCoverage(rank - 1);
+    }
+  }
+  return Math.round(total * 10) / 10;
+}

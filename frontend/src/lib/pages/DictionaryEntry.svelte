@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { dictionaryTarget, navigateTo, previousPage, bankDict, beastiaryDict } from '$lib/stores';
+  import { dictionaryTarget, navigateTo, previousPage, bankDict, beastiaryDict, masteredChars, markMastered, markLearning } from '$lib/stores';
   import { api } from '$lib/api';
   import { numericToAccented, splitPronunciations, getToneNumber, getToneColor } from '$lib/utils';
   import Button3D from '$lib/components/Button3D.svelte';
@@ -143,12 +143,12 @@
     }
   }
 
-  async function handleAddToBank() {
+  async function addToBankAnd(mastered: boolean) {
     try {
       const res = await api.addCharacters(text);
-      if (res.added.length > 0) {
-        removeMsg = `Added: ${res.added.join('')}`;
+      if (res.added.length > 0 || res.existed.length > 0) {
         inBank = true;
+        if (mastered) markMastered(text); else markLearning(text);
         const [chars, words] = await Promise.all([api.getCharacters(), api.getWords()]);
         bankDict.set(chars);
         beastiaryDict.set(words);
@@ -158,12 +158,39 @@
             .filter(([word]) => word.includes(text))
             .map(([word, data]) => ({ word, data }));
         }
-      } else {
-        removeMsg = 'Already in bank';
+        removeMsg = mastered ? 'Added to Learnt' : 'Added to Learning';
       }
     } catch (e) {
       removeMsg = 'Failed to add character';
     }
+  }
+
+  async function handleAddToLearning() {
+    await addToBankAnd(false);
+  }
+
+  async function handleAddToLearnt() {
+    await addToBankAnd(true);
+  }
+
+  async function handleMoveToLearnt() {
+    markMastered(text);
+    removeMsg = 'Moved to Learnt';
+  }
+
+  async function handleMoveToLearning() {
+    markLearning(text);
+    removeMsg = 'Moved to Learning';
+  }
+
+  async function handleRemoveFromLearning() {
+    await handleRemove();
+    markLearning(text);
+  }
+
+  async function handleRemoveFromLearnt() {
+    await handleRemove();
+    markLearning(text);
   }
 
   function goBack() {
@@ -229,24 +256,6 @@
               <p class="def-text">{data.definition}</p>
             {/if}
           </div>
-
-          <!-- Add/Remove button (characters only) -->
-          {#if !isWord}
-            <div class="remove-section">
-              {#if inBank}
-                <Button3D variant="coral" size="sm" onclick={handleRemove}>
-                  Remove from bank
-                </Button3D>
-              {:else}
-                <Button3D variant="teal" size="sm" onclick={handleAddToBank}>
-                  Add to bank
-                </Button3D>
-              {/if}
-              {#if removeMsg}
-                <p class="remove-msg">{removeMsg}</p>
-              {/if}
-            </div>
-          {/if}
 
           {#if isWord && !wordData}
             <p class="not-unlocked">This word hasn't been unlocked yet. Add its characters to your bank first.</p>
@@ -349,6 +358,37 @@
               <span class="info-value">{isWord ? 'word' : 'character'}</span>
             </div>
           </div>
+          {#if !isWord}
+            <div class="sidebar-action">
+              {#if inBank}
+                {#if $masteredChars.has(text)}
+                  <button class="action-btn action-gold" onclick={handleMoveToLearning}>
+                    Move to Learning
+                  </button>
+                  <button class="action-btn action-remove" onclick={handleRemoveFromLearnt}>
+                    Remove from Learnt
+                  </button>
+                {:else}
+                  <button class="action-btn action-green" onclick={handleMoveToLearnt}>
+                    Move to Learnt
+                  </button>
+                  <button class="action-btn action-remove" onclick={handleRemoveFromLearning}>
+                    Remove from Learning
+                  </button>
+                {/if}
+              {:else}
+                <button class="action-btn action-green" onclick={handleAddToLearnt}>
+                  Add to Learnt
+                </button>
+                <button class="action-btn action-gold" onclick={handleAddToLearning}>
+                  Add to Learning
+                </button>
+              {/if}
+              {#if removeMsg}
+                <p class="remove-msg">{removeMsg}</p>
+              {/if}
+            </div>
+          {/if}
         </div>
       </div>
     </div>
@@ -413,6 +453,9 @@
     flex-direction: column;
     align-items: center;
     gap: 14px;
+    position: sticky;
+    top: 32px;
+    align-self: flex-start;
   }
 
   .info-panel {
@@ -454,6 +497,59 @@
   .hsk-value {
     color: #c41e3a;
   }
+
+  .sidebar-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .action-btn {
+    width: 100%;
+    padding: 8px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.1s;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+  }
+
+  .action-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+  }
+
+  .action-green {
+    background: #6bb5b0;
+    color: #fff;
+    box-shadow: 0 3px 0 #4a8a85;
+  }
+
+  .action-green:hover { filter: brightness(0.92); }
+
+  .action-gold {
+    background: #d4953a;
+    color: #fff;
+    box-shadow: 0 3px 0 #a0702a;
+  }
+
+  .action-gold:hover { filter: brightness(0.92); }
+
+  .action-remove {
+    background: transparent;
+    color: #bbb;
+    box-shadow: none;
+    font-weight: 400;
+    font-size: 11px;
+    padding: 4px;
+  }
+
+  .action-remove:hover { color: #e87d7d; }
 
   .sidebar-char {
     font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;

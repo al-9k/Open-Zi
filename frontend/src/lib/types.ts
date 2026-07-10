@@ -4,6 +4,7 @@ export interface CharacterData {
   hsk: number | null;
   frequency: number | null;
   frequency_rank: number | null;
+  char_rank?: number | null;
   date: string;
 }
 
@@ -12,6 +13,7 @@ export interface WordData {
   definition: string;
   hsk: number | null;
   frequency_rank: number | null;
+  char_rank?: number | null;
   date: string;
 }
 
@@ -52,4 +54,5 @@ export interface DictionaryEntry {
   hsk: number | null;
   frequency: number | null;
   frequency_rank: number | null;
+  char_rank?: number | null;
 }

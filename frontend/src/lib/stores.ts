@@ -37,3 +37,17 @@ export const openDictionary = (text: string, isWord: boolean) => {
   dictionaryTarget.set({ text, isWord });
   currentPage.set("dictionary");
 };
+
+export const masteredChars = writable<Set<string>>(new Set());
+
+export const markMastered = (char: string) => {
+  masteredChars.update(s => new Set([...s, char]));
+};
+
+export const markLearning = (char: string) => {
+  masteredChars.update(s => { const n = new Set(s); n.delete(char); return n; });
+};
+
+export const isMastered = (char: string): boolean => {
+  return get(masteredChars).has(char);
+};

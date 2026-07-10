@@ -7,6 +7,7 @@
   import DictionaryEntry from '$lib/pages/DictionaryEntry.svelte';
   import MyBank from '$lib/pages/MyBank.svelte';
   import MyDecks from '$lib/pages/MyDecks.svelte';
+  import Decks from '$lib/pages/Decks.svelte';
   import SearchResults from '$lib/pages/SearchResults.svelte';
   import Settings from '$lib/pages/Settings.svelte';
 
@@ -48,7 +49,7 @@
     {:else if $currentPage === 'my-decks'}
       <MyDecks />
     {:else if $currentPage === 'my-decks2'}
-      <div class="stub-page"><p>My Decks — coming soon</p></div>
+      <Decks />
     {:else if $currentPage === 'search-results'}
       <SearchResults />
     {:else if $currentPage === 'settings'}

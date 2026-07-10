@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { stats as statsStore, bankDict, beastiaryDict, openDictionary, navigateTo } from '$lib/stores';
+  import { stats as statsStore, bankDict, beastiaryDict, openDictionary, navigateTo, masteredChars } from '$lib/stores';
   import { api } from '$lib/api';
-  import { numericToAccented, getToneNumber, getToneColor, splitPronunciations } from '$lib/utils';
+  import { numericToAccented, getToneNumber, getToneColor, splitPronunciations, computeCoverage } from '$lib/utils';
   import ClipboardCard from '$lib/components/ClipboardCard.svelte';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
   import AddBar from '$lib/components/AddBar.svelte';
@@ -14,6 +14,15 @@
   let addMessage = $state('');
   let addMsgType = $state<'success' | 'error' | ''>('');
   let loading = $state(true);
+
+  let learntCoverage = $derived.by(() => {
+    const mastered = $masteredChars;
+    const learnt: Record<string, { char_rank?: number | null }> = {};
+    for (const [char, data] of Object.entries($bankDict)) {
+      if (mastered.has(char)) learnt[char] = data;
+    }
+    return computeCoverage(learnt);
+  });
 
   onMount(async () => {
     await Promise.all([loadStats(), loadCharOfDay()]);
@@ -105,9 +114,9 @@
       <h2 class="section-title">Text Coverage</h2>
       <div class="coverage-bar-wrap">
         <div class="coverage-bar">
-          <div class="coverage-fill" style="width: {statsData?.coverage ?? 0}%"></div>
+          <div class="coverage-fill" style="width: {learntCoverage}%"></div>
         </div>
-        <span class="coverage-pct">{statsData?.coverage ?? 0}%</span>
+        <span class="coverage-pct">{learntCoverage}%</span>
       </div>
       <p class="coverage-sub">
         Based on HanziCraft frequency data
