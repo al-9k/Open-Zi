@@ -63,10 +63,13 @@
 
       <!-- LEFT -->
       <div class="left">
+        <div style="display:flex;flex-direction:column;gap:0;">
+        <h3 class="block-h" style="margin:0;">MY PROGRESS</h3>
         <div class="stats">
           <div class="stat"><span class="sn">{stats?.char_count??0}</span><span class="sl">caught</span></div>
           <div class="stat"><span class="sn">{stats?.word_count??0}</span><span class="sl">words</span></div>
           <div class="stat"><span class="sn">{stats?.dictionary_count??0}</span><span class="sl">total</span></div>
+        </div>
         </div>
 
         <div class="block">
