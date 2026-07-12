@@ -76,7 +76,8 @@
         </div>
 
         {#if hv}
-          <h3 class="block-h" style="color:#2a8a4a;">NEXT BEST CATCH</h3>
+          <div style="display:flex;flex-direction:column;gap:0;">
+          <h3 class="block-h" style="color:#2a8a4a;margin:0;">NEXT BEST CATCH</h3>
           <div class="block nbc" onclick={()=>openDictionary(hv.character,false)}>
             <span class="nbc-char">{hv.character}</span>
             <div class="nbc-info">
@@ -87,6 +88,7 @@
               <div class="nbc-tags">{#if hv.char_rank}<span class="nbc-r">#{hv.char_rank}</span>{/if}{#if hv.hsk}<span class="nbc-h">HSK {hv.hsk}</span>{/if}</div>
             </div>
             <span class="nbc-count">+{hv.new_words}</span>
+          </div>
           </div>
         {/if}
 
@@ -132,7 +134,7 @@
   .tx { font-size:14px; color:#9a9590; font-family:'Inter',sans-serif; }
   .layout { flex:1; display:flex; gap:22px; min-height:0; }
   .left { flex:1; display:flex; flex-direction:column; gap:14px; min-width:0; overflow-y:auto; padding-right:8px; }
-  .right { width:280px; flex-shrink:0; display:flex; flex-direction:column; gap:6px; position:sticky; top:28px; align-self:flex-start; max-height:calc(100vh - 56px); }
+  .right { width:280px; flex-shrink:0; display:flex; flex-direction:column; gap:0; position:sticky; top:28px; align-self:flex-start; max-height:calc(100vh - 56px); }
 
   .stats { display:flex; gap:10px; }
   .stats>*{flex:1;}
@@ -140,7 +142,7 @@
   .sn { font-family:'Inter',sans-serif; font-size:42px; font-weight:900; color:#c41e3a; line-height:1; }
   .sl { font-family:'Inter',sans-serif; font-size:11px; font-weight:700; color:#5a5550; text-transform:uppercase; letter-spacing:1.5px; }
   .block { background:#fff; border:3px solid #2a2a2a; box-shadow:3px 3px 0 #1a1a1a; padding:20px; }
-  .block-h { font-family:'Inter',sans-serif; font-size:12px; font-weight:800; color:#c41e3a; text-transform:uppercase; letter-spacing:1px; margin:0 0 6px; }
+  .block-h { font-family:'Inter',sans-serif; font-size:12px; font-weight:800; color:#c41e3a; text-transform:uppercase; letter-spacing:1px; margin:0; }
   .hp-row { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
   .hp-label { font-size:11px; font-weight:800; color:#5a5550; letter-spacing:1px; font-family:'Inter',sans-serif; }
   .hp-val { font-size:24px; font-weight:900; color:#c41e3a; font-family:'Inter',sans-serif; }
