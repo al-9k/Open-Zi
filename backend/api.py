@@ -135,3 +135,23 @@ def highest_value():
     if result:
         return result
     return {"error": "no candidates"}
+
+
+@app.get("/api/speak")
+async def speak(text: str = ""):
+    """Generate TTS audio using Edge neural voice."""
+    import edge_tts, tempfile, os, asyncio
+    from fastapi.responses import FileResponse
+
+    communicate = edge_tts.Communicate(text, "zh-CN-XiaoxiaoNeural")
+    tmp = tempfile.NamedTemporaryFile(suffix=".mp3", delete=False)
+    path = tmp.name; tmp.close()
+    await communicate.save(path)
+
+    async def cleanup():
+        await asyncio.sleep(5)
+        try: os.unlink(path)
+        except: pass
+    asyncio.create_task(cleanup())
+
+    return FileResponse(path, media_type="audio/mpeg")

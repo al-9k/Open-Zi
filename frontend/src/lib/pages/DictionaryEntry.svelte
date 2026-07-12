@@ -244,7 +244,7 @@
                         <span class="def-numeric">({syl.replace(/[A-Z]/g, (c) => c.toLowerCase())})</span>
                       {/each}
                     </span>
-                    <Speak text={text} />
+                    <Speak text={text} pinyin={numericToAccented(pair.pinyin)} />
                   </div>
                   <ul class="def-bullets">
                     {#each pair.definition.split('; ').filter(Boolean) as meaning}
