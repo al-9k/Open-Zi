@@ -92,19 +92,19 @@
           </div>
         {/if}
 
+        <div style="display:flex;flex-direction:column;gap:0;">
+        <h3 class="block-h" style="margin:0;">QUICK ADD CHARACTERS</h3>
         <div class="block">
           <AddBar bind:value={addText} onsubmit={handleAdd} />
           {#if addMsg}<p class="add-msg">{addMsg}</p>{/if}
-        </div>
-
-        <div class="block">
-          <h3 class="block-h">Recently Added</h3>
+          <h3 class="block-h" style="margin-top:14px;">Recently Added</h3>
           <div class="recents">
             {#each recent() as e}{@const r = ((e.char.charCodeAt(0)*7)%3)-1}
               <CharacterCard character={e.char} hsk={e.hsk} frequencyRank={e.frequencyRank} inBank={true} rotate={r} onclick={()=>openDictionary(e.char,false)} />
             {/each}
           </div>
           {#if recent().length===0}<p class="empty">Add some characters!</p>{/if}
+        </div>
         </div>
       </div>
 
