@@ -5,13 +5,14 @@
   import { numericToAccented, getToneNumber, getToneColor, splitPronunciations, computeCoverage } from '$lib/utils';
   import CharacterCard from '$lib/components/CharacterCard.svelte';
   import AddBar from '$lib/components/AddBar.svelte';
+  import StrokeOrder from '$lib/components/StrokeOrder.svelte';
   import type { StatsData, DictionaryEntry } from '$lib/types';
 
   let stats = $state<StatsData | null>(null);
   let cotd = $state<DictionaryEntry | null>(null);
+  let hv = $state<any>(null);
   let addText = $state(''); let addMsg = $state('');
   let loading = $state(true);
-  let hv = $state<any>(null);
 
   let coverage = $derived.by(() => {
     const m = $masteredChars;
@@ -21,16 +22,17 @@
   });
 
   onMount(async () => {
-    await Promise.all([loadStats(), loadCotd(), (async()=>{try{const r=await fetch('http://localhost:8000/api/highest-value').then(r=>r.json());if(r.character)hv=r;}catch(e){}})()]);
+    await Promise.all([loadStats(), loadCotd(), loadHV()]);
     loading = false;
   });
 
+  async function loadHV() {
+    try { const r = await fetch('http://localhost:8000/api/highest-value').then(r=>r.json()); if(r.character)hv=r; } catch(e){}
+  }
   async function loadCotd() {
     try { const d = await api.getDictionary(); const s = new Date().toDateString().split('').reduce((a,c)=>a+c.charCodeAt(0),0); cotd = d[s % d.length]; } catch(e){}
   }
-  async function loadStats() {
-    try { const d = await api.getStats(); stats = d; ss.set(d); } catch(e){}
-  }
+  async function loadStats() { try { const d = await api.getStats(); stats = d; ss.set(d); } catch(e){} }
   async function handleAdd() {
     const t = addText.trim(); if(!t)return;
     try {
@@ -55,129 +57,118 @@
 
 <div class="page">
   {#if loading}
-    <slot name="loading"><p class="tx">Loading...</p></slot>
+    <p class="tx">Loading...</p>
   {:else}
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat"><span class="sn">{stats?.char_count??0}</span><span class="sl">caught</span></div>
-      <div class="stat"><span class="sn">{stats?.word_count??0}</span><span class="sl">words</span></div>
-      <div class="stat"><span class="sn">{stats?.dictionary_count??0}</span><span class="sl">total</span></div>
-    </div>
+    <div class="layout">
 
-    <!-- Coverage HP bar -->
-    <div class="block">
-      <div class="hp-row">
-        <span class="hp-label">COVERAGE</span>
-        <span class="hp-val">{coverage}%</span>
-      </div>
-      <div class="hp-bar"><div class="hp-fill" style="width:{coverage}%"></div></div>
-      <p class="hp-sub">Based on HanziCraft frequency data</p>
-    </div>
+      <!-- LEFT -->
+      <div class="left">
+        <div class="stats">
+          <div class="stat"><span class="sn">{stats?.char_count??0}</span><span class="sl">caught</span></div>
+          <div class="stat"><span class="sn">{stats?.word_count??0}</span><span class="sl">words</span></div>
+          <div class="stat"><span class="sn">{stats?.dictionary_count??0}</span><span class="sl">total</span></div>
+        </div>
 
-    <!-- Character of the Day -->
-    {#if cotd}
-      <div class="block cotd-block" onclick={()=>openDictionary(cotd.character,false)} role="button" tabindex="0" onkeydown={(e)=>e.key==='Enter'&&openDictionary(cotd.character,false)}>
-        <span class="cotd-char">{cotd.character}</span>
-        <div class="cotd-info">
-          <div class="cotd-pin">
-            {#each splitPronunciations(cotd.pinyin,cotd.definition) as pr,pi}
-              {#if pi===0}
-                {#each pr.pinyin.split(' ').filter(Boolean) as s,si}
-                  {#if si>0}{' '}{/if}
-                  <span style="color:{getToneColor(getToneNumber(s))}">{numericToAccented(s)}</span>
-                  <span class="cotd-num">({s.toLowerCase()})</span>
-                {/each}
-              {/if}
+        <div class="block">
+          <div class="hp-row"><span class="hp-label">COVERAGE</span><span class="hp-val">{coverage}%</span></div>
+          <div class="hp-bar"><div class="hp-fill" style="width:{coverage}%"></div></div>
+          <p class="hp-sub">Based on HanziCraft frequency data</p>
+        </div>
+
+        {#if hv}
+          <h3 class="block-h" style="color:#2a8a4a;">NEXT BEST CATCH</h3>
+          <div class="block nbc" onclick={()=>openDictionary(hv.character,false)}>
+            <span class="nbc-char">{hv.character}</span>
+            <div class="nbc-info">
+              <div class="nbc-pin">
+                {#each splitPronunciations(hv.pinyin,hv.definition) as pr,pi}{#if pi===0}{#each pr.pinyin.split(' ').filter(Boolean) as s,si}{#if si>0}{' '}{/if}<span style="color:{getToneColor(getToneNumber(s))}">{numericToAccented(s)}</span><span class="nbc-num">({s.toLowerCase()})</span>{/each}{/if}{/each}
+              </div>
+              <p class="nbc-def">+{hv.new_words} word{hv.new_words!==1?'s':''} &bull; +{hv.coverage_add}% coverage</p>
+              <div class="nbc-tags">{#if hv.char_rank}<span class="nbc-r">#{hv.char_rank}</span>{/if}{#if hv.hsk}<span class="nbc-h">HSK {hv.hsk}</span>{/if}</div>
+            </div>
+            <span class="nbc-count">+{hv.new_words}</span>
+          </div>
+        {/if}
+
+        <div class="block">
+          <AddBar bind:value={addText} onsubmit={handleAdd} />
+          {#if addMsg}<p class="add-msg">{addMsg}</p>{/if}
+        </div>
+
+        <div class="block">
+          <h3 class="block-h">Recently Added</h3>
+          <div class="recents">
+            {#each recent() as e}{@const r = ((e.char.charCodeAt(0)*7)%3)-1}
+              <CharacterCard character={e.char} hsk={e.hsk} frequencyRank={e.frequencyRank} inBank={true} rotate={r} onclick={()=>openDictionary(e.char,false)} />
             {/each}
           </div>
-          <p class="cotd-def">
-            {#each splitPronunciations(cotd.pinyin,cotd.definition) as pr,pi}
-              {#if pi===0}{pr.definition.split('; ').filter(Boolean).join(' • ')}{/if}
-            {/each}
-          </p>
-          <div class="cotd-tags">
-            {#if cotd.frequency_rank}<span class="cotd-r">#{cotd.frequency_rank}</span>{/if}
-            {#if cotd.hsk}<span class="cotd-h">HSK {cotd.hsk}</span>{/if}
-          </div>
+          {#if recent().length===0}<p class="empty">Add some characters!</p>{/if}
         </div>
       </div>
-    {/if}
 
-    {#if hv}
-      <div class="block cotd-block" style="border-color:#2a8a4a;box-shadow:3px 3px 0 #2a8a4a;" onclick={()=>openDictionary(hv.character,false)}>
-        <span class="cotd-char">{hv.character}</span>
-        <div class="cotd-info">
-          <div class="cotd-pin">
-            {#each splitPronunciations(hv.pinyin,hv.definition) as pr,pi}
-              {#if pi===0}
-                {#each pr.pinyin.split(' ').filter(Boolean) as s,si}
-                  {#if si>0}{' '}{/if}
-                  <span style="color:{getToneColor(getToneNumber(s))}">{numericToAccented(s)}</span>
-                  <span class="cotd-num">({s.toLowerCase()})</span>
-                {/each}
-              {/if}
-            {/each}
-          </div>
-          <p class="cotd-def">+{hv.new_words} word{hv.new_words!==1?'s':''} &bull; +{hv.coverage_add}% coverage</p>
-          <div class="cotd-tags">
-            {#if hv.char_rank}<span class="cotd-r">#{hv.char_rank}</span>{/if}
-            {#if hv.hsk}<span class="cotd-h">HSK {hv.hsk}</span>{/if}
+      <!-- RIGHT -->
+      {#if cotd}
+        <div class="right">
+          <h3 class="block-h">CHARACTER OF THE DAY</h3>
+          <div class="block cotd-box" onclick={()=>openDictionary(cotd.character,false)}>
+            <StrokeOrder character={cotd.character} autoplay={true} />
+            <div class="cotd-body">
+              <div class="cotd-pin">
+                {#each splitPronunciations(cotd.pinyin,cotd.definition) as pr,pi}{#if pi===0}{#each pr.pinyin.split(' ').filter(Boolean) as s,si}{#if si>0}{' '}{/if}<span style="color:{getToneColor(getToneNumber(s))}">{numericToAccented(s)}</span><span class="cotd-num">({s.toLowerCase()})</span>{/each}{/if}{/each}
+              </div>
+              <p class="cotd-def">{#each splitPronunciations(cotd.pinyin,cotd.definition) as pr,pi}{#if pi===0}{pr.definition.split('; ').filter(Boolean).join(' • ')}{/if}{/each}</p>
+              <div class="cotd-tags">{#if cotd.frequency_rank}<span class="cotd-r">#{cotd.frequency_rank}</span>{/if}{#if cotd.hsk}<span class="cotd-h">HSK {cotd.hsk}</span>{/if}</div>
+            </div>
           </div>
         </div>
-        <span class="hv-count">+{hv.new_words}</span>
-      </div>
-    {/if}
+      {/if}
 
-    <div class="block">      <AddBar bind:value={addText} onsubmit={handleAdd} />
-      {#if addMsg}<p class="add-msg">{addMsg}</p>{/if}
-    </div>
-
-    <div class="block">
-      <h3 class="block-h">Recently Added</h3>
-      <div class="recents">
-        {#each recent() as e}
-          {@const r = ((e.char.charCodeAt(0)*7)%3)-1}
-          <CharacterCard character={e.char} hsk={e.hsk} frequencyRank={e.frequencyRank} inBank={true} rotate={r} onclick={()=>openDictionary(e.char,false)} />
-        {/each}
-      </div>
-      {#if recent().length===0}<p class="empty">Catch some characters!</p>{/if}
     </div>
   {/if}
 </div>
 
 <style>
-  .page { flex:1; min-height:0; padding:28px; display:flex; flex-direction:column; gap:18px; }
+  .page { flex:1; min-height:0; padding:28px; display:flex; }
   .tx { font-size:14px; color:#9a9590; font-family:'Inter',sans-serif; }
+  .layout { flex:1; display:flex; gap:22px; min-height:0; }
+  .left { flex:1; display:flex; flex-direction:column; gap:14px; min-width:0; overflow-y:auto; padding-right:8px; }
+  .right { width:280px; flex-shrink:0; display:flex; flex-direction:column; gap:6px; position:sticky; top:28px; align-self:flex-start; max-height:calc(100vh - 56px); }
 
   .stats { display:flex; gap:10px; }
-  .stats>* { flex:1; }
-  .stat { background:#ffffff; border:3px solid #2a2a2a; box-shadow:3px 3px 0 #1a1a1a; padding:20px; display:flex; flex-direction:column; gap:0; }
+  .stats>*{flex:1;}
+  .stat { background:#fff; border:3px solid #2a2a2a; box-shadow:3px 3px 0 #1a1a1a; padding:20px; display:flex; flex-direction:column; gap:0; }
   .sn { font-family:'Inter',sans-serif; font-size:42px; font-weight:900; color:#c41e3a; line-height:1; }
   .sl { font-family:'Inter',sans-serif; font-size:11px; font-weight:700; color:#5a5550; text-transform:uppercase; letter-spacing:1.5px; }
-
-  .block { background:#ffffff; border:3px solid #2a2a2a; box-shadow:3px 3px 0 #1a1a1a; padding:20px; }
-  .block-h { font-family:'Inter',sans-serif; font-size:12px; font-weight:800; color:#c41e3a; text-transform:uppercase; letter-spacing:1px; margin:0 0 14px; }
-
+  .block { background:#fff; border:3px solid #2a2a2a; box-shadow:3px 3px 0 #1a1a1a; padding:20px; }
+  .block-h { font-family:'Inter',sans-serif; font-size:12px; font-weight:800; color:#c41e3a; text-transform:uppercase; letter-spacing:1px; margin:0 0 6px; }
   .hp-row { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
-  .hp-label { font-family:'Inter',sans-serif; font-size:11px; font-weight:800; color:#5a5550; letter-spacing:1px; }
-  .hp-val { font-family:'Inter',sans-serif; font-size:24px; font-weight:900; color:#c41e3a; }
+  .hp-label { font-size:11px; font-weight:800; color:#5a5550; letter-spacing:1px; font-family:'Inter',sans-serif; }
+  .hp-val { font-size:24px; font-weight:900; color:#c41e3a; font-family:'Inter',sans-serif; }
   .hp-bar { height:12px; background:#e8e5e0; border:2px solid #1a1a1a; }
   .hp-fill { height:100%; background:#c41e3a; transition:width 0.6s; }
   .hp-sub { font-size:10px; color:#9a9590; font-family:'Inter',sans-serif; margin:6px 0 0; }
 
-  .cotd-block { display:flex; gap:20px; align-items:flex-start; cursor:pointer; border:3px solid #c41e3a; box-shadow:3px 3px 0 #c41e3a; }
-  .cotd-char { font-family:'Kaiti SC','STKaiti','KaiTi','SimKai',cursive; font-size:84px; color:#1a1a1a; line-height:1; flex-shrink:0; }
-  .cotd-info { display:flex; flex-direction:column; gap:6px; padding-top:6px; min-width:0; }
-  .cotd-pin { font-family:'Inter',sans-serif; font-size:16px; font-weight:700; display:flex; align-items:baseline; flex-wrap:wrap; }
+  .nbc { display:flex; gap:18px; align-items:center; cursor:pointer; border-color:#2a8a4a; box-shadow:3px 3px 0 #2a8a4a; }
+  .nbc-char { font-family:'Kaiti SC','STKaiti','KaiTi','SimKai',cursive; font-size:56px; color:#1a1a1a; line-height:1; flex-shrink:0; }
+  .nbc-info { flex:1; display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .nbc-pin { font-family:'Inter',sans-serif; font-size:14px; font-weight:700; display:flex; align-items:baseline; flex-wrap:wrap; }
+  .nbc-num { font-size:10px; font-weight:400; color:#9a9590; margin-right:4px; }
+  .nbc-def { font-size:13px; color:#5a5550; margin:0; font-family:'Inter',sans-serif; }
+  .nbc-tags { display:flex; gap:10px; }
+  .nbc-r { font-size:10px; color:#9a9590; font-family:'Inter',sans-serif; font-weight:600; }
+  .nbc-h { font-size:10px; color:#c41e3a; font-family:'Inter',sans-serif; font-weight:700; }
+  .nbc-count { font-family:'Inter',sans-serif; font-size:28px; font-weight:900; color:#2a8a4a; flex-shrink:0; }
+
+  .cotd-box { cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:12px; overflow:hidden; border-color:#c41e3a; box-shadow:3px 3px 0 #c41e3a; }
+  .cotd-body { width:100%; display:flex; flex-direction:column; gap:8px; }
+  .cotd-pin { font-family:'Inter',sans-serif; font-size:14px; font-weight:700; display:flex; align-items:baseline; flex-wrap:wrap; }
   .cotd-num { font-size:10px; font-weight:400; color:#9a9590; margin-right:4px; }
-  .cotd-def { font-family:'Inter',sans-serif; font-size:13px; color:#5a5550; line-height:1.5; margin:0; }
+  .cotd-def { font-family:'Inter',sans-serif; font-size:13px; color:#5a5550; line-height:1.5; margin:0; overflow:hidden; display:-webkit-box; -webkit-line-clamp:5; -webkit-box-orient:vertical; }
   .cotd-tags { display:flex; gap:10px; }
-  .hv-count { font-family:'Inter',sans-serif; font-size:28px; font-weight:900; color:#2a8a4a; margin-left:auto; align-self:center; flex-shrink:0; }
   .cotd-r { font-size:10px; color:#9a9590; font-family:'Inter',sans-serif; font-weight:600; }
   .cotd-h { font-size:10px; color:#c41e3a; font-family:'Inter',sans-serif; font-weight:700; }
 
-  .add-msg { margin-top:10px; font-size:12px; color:#2a8a4a; font-family:'Inter',sans-serif; }
-
+  .add-msg { margin-top:10px; font-size:13px; color:#2a8a4a; font-family:'Inter',sans-serif; }
   .recents { display:flex; flex-wrap:wrap; gap:10px; }
   .empty { font-size:13px; color:#9a9590; font-style:italic; font-family:'Inter',sans-serif; }
 </style>
