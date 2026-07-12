@@ -124,6 +124,7 @@
             {#if hv.hsk}<span class="cotd-h">HSK {hv.hsk}</span>{/if}
           </div>
         </div>
+        <span class="hv-count">+{hv.new_words}</span>
       </div>
     {/if}
 
@@ -171,6 +172,7 @@
   .cotd-num { font-size:10px; font-weight:400; color:#9a9590; margin-right:4px; }
   .cotd-def { font-family:'Inter',sans-serif; font-size:13px; color:#5a5550; line-height:1.5; margin:0; }
   .cotd-tags { display:flex; gap:10px; }
+  .hv-count { font-family:'Inter',sans-serif; font-size:28px; font-weight:900; color:#2a8a4a; margin-left:auto; align-self:center; flex-shrink:0; }
   .cotd-r { font-size:10px; color:#9a9590; font-family:'Inter',sans-serif; font-weight:600; }
   .cotd-h { font-size:10px; color:#c41e3a; font-family:'Inter',sans-serif; font-weight:700; }
 
