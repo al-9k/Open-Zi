@@ -302,7 +302,7 @@
             <div class="words-section">
               <h3 class="section-label">Characters</h3>
               <div class="words-list">
-                {#each componentChars as cc}}
+                {#each componentChars as cc}
                   <button class="word-row" onclick={() => { dictionaryTarget.set({ text: cc.char, isWord: false }); }}>
                     <span class="word-text">{cc.char}</span>
                     <span class="word-pinyin-cell">
@@ -339,7 +339,12 @@
           {#if !isWord}
             <StrokeOrder character={text} />
           {:else}
-            <span class="sidebar-char">{text}</span>
+            <div class="sidebar-strokes">
+              {#each [...text] as c, i}
+                <StrokeOrder character={c} autoplay={false} />
+              {/each}
+              <span class="sidebar-word">{text}</span>
+            </div>
           {/if}
           <div class="info-panel">
             {#if data.hsk}
@@ -551,6 +556,8 @@
 
   .action-remove:hover { color: #c41e3a; }
 
+  .sidebar-strokes { display:flex; flex-direction:column; align-items:center; gap:8px; max-height:calc(100vh - 300px); overflow-y:auto; }
+  .sidebar-word { font-family:'Kaiti SC','STKaiti','KaiTi','SimKai',cursive; font-size:48px; color:#1a1a1a; line-height:1; }
   .sidebar-char {
     font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', 'SimKai', cursive;
     font-size: 120px;

@@ -5,9 +5,11 @@
   let {
     character,
     autoplay = false,
+    oncomplete,
   }: {
     character: string;
     autoplay?: boolean;
+    oncomplete?: () => void;
   } = $props();
 
   let writer: HanziWriter | null = $state(null);
@@ -25,11 +27,11 @@
     canvasEl.innerHTML = '';
 
     writer = HanziWriter.create(canvasEl, character, {
-      width: 200, height: 200, padding: 8,
+      width: 140, height: 140, padding: 6,
       strokeColor: '#3a3a3a', radicalColor: '#c41e3a', outlineColor: '#d0cbc0',
-      strokeAnimationSpeed: 0.8, delayBetweenStrokes: 200,
+      strokeAnimationSpeed: 1.2, delayBetweenStrokes: 150,
       onLoadCharDataSuccess: () => { loading = false; ready = true; if (autoplay) writer?.loopCharacterAnimation(); },
-      onLoadCharDataError: () => { error = 'No stroke data'; loading = false; },
+      onLoadCharDataError: () => { error = 'No data'; loading = false; },
     });
   }
 
@@ -39,54 +41,46 @@
     if (character !== lastChar) { lastChar = character; initWriter(); }
   });
 
-  function animateStroke() {
-    if (!writer || playing) return;
+  function startAnim() {
+    if (!writer) return;
     playing = true;
-    writer.animateCharacter({ onComplete: () => { playing = false; } });
+    writer.animateCharacter({
+      onComplete: () => {
+        playing = false;
+        if (autoplay && oncomplete) oncomplete();
+      },
+    });
   }
 
-  function resetStroke() {
-    if (!writer) return;
-    playing = false;
-    writer.hideCharacter();
-    setTimeout(() => { writer?.showCharacter(); }, 100);
-  }
+  function manualPlay() { startAnim(); }
+  function reset() { if (!writer) return; playing = false; writer.hideCharacter(); setTimeout(() => writer?.showCharacter(), 100); }
 </script>
 
 <div class="stroke-wrap">
   <div class="stroke-canvas-wrap">
-    {#if loading}
-      <div class="stroke-loading"><span class="stroke-loading-char">{character}</span></div>
-    {/if}
+    {#if loading}<div class="stroke-loading"><span class="stroke-loading-char">{character}</span></div>{/if}
     <div bind:this={canvasEl} class="stroke-canvas" class:hidden={loading}></div>
   </div>
   {#if !autoplay}
     <div class="stroke-controls">
-      {#if error}
-        <span class="stroke-error">No stroke data</span>
-      {:else if ready}
-        <button class="sc-btn" onclick={animateStroke} disabled={playing}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> Play
-        </button>
-        <button class="sc-btn" onclick={resetStroke}>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> Reset
-        </button>
+      {#if error}<span class="stroke-error">No data</span>{:else if ready}
+        <button class="sc-btn" onclick={manualPlay} disabled={playing}><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg> Play</button>
+        <button class="sc-btn" onclick={reset}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> Reset</button>
       {/if}
     </div>
   {/if}
 </div>
 
 <style>
-  .stroke-wrap { display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; }
-  .stroke-canvas-wrap { position:relative; width:200px; height:200px; background:#ffffff; border:1px solid #d0ccc4; overflow:hidden; }
-  .stroke-canvas { width:200px; height:200px; }
+  .stroke-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; flex-shrink:0; }
+  .stroke-canvas-wrap { position:relative; width:140px; height:140px; background:#ffffff; border:1px solid #d0ccc4; overflow:hidden; }
+  .stroke-canvas { width:140px; height:140px; }
   .stroke-canvas.hidden { visibility:hidden; }
   .stroke-loading { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
-  .stroke-loading-char { font-family:'Kaiti SC','STKaiti','KaiTi','SimKai',cursive; font-size:80px; color:#e0dcd4; }
-  .stroke-error { font-size:11px; color:#bbb; font-family:'Inter',sans-serif; font-style:italic; }
-  .stroke-controls { display:flex; gap:6px; justify-content:center; }
-  .sc-btn { display:inline-flex; align-items:center; gap:3px; padding:3px 10px; font-family:'Inter',sans-serif; font-size:11px; font-weight:600; color:#666; background:#fff; border:1px solid #e8e3da; cursor:pointer; }
+  .stroke-loading-char { font-family:'Kaiti SC','STKaiti','KaiTi','SimKai',cursive; font-size:60px; color:#e0dcd4; }
+  .stroke-error { font-size:10px; color:#9a9590; font-family:'Inter',sans-serif; }
+  .stroke-controls { display:flex; gap:4px; justify-content:center; }
+  .sc-btn { display:inline-flex; align-items:center; gap:2px; padding:2px 8px; font-family:'Inter',sans-serif; font-size:10px; font-weight:600; color:#5a5550; background:#fff; border:1px solid #d0ccc4; cursor:pointer; }
   .sc-btn:hover { background:#f5f2ec; }
-  .sc-btn:active { background:#eee9e0; }
   .sc-btn:disabled { opacity:0.5; cursor:default; }
 </style>
