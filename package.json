@@ -1,0 +1,30 @@
+{
+  "name": "open-zi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/al-9k/Open-Zi.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/al-9k/Open-Zi/issues"
+  },
+  "homepage": "https://github.com/al-9k/Open-Zi#readme",
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "prisma": "^7.8.0",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.8.0",
+    "pg": "^8.22.0"
+  }
+}
