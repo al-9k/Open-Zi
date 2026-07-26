@@ -30,3 +30,5 @@ test.js
 docs/KANBAN.md
 docs/ROADMAP.md
 backend/sample_dict.json
+
+/generated/prisma
