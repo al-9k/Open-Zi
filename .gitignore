@@ -4,4 +4,3 @@ dist/
 *.log
 .DS_Store
 progress_diary.md
-cedict.json

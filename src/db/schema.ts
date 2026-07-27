@@ -8,8 +8,8 @@ export const cedict_entries = pgTable("cedict", {
   // Optional columns (no .notNull())
   hsk: integer(),
   frequency: integer(),
-  frequency_rank: integer(),
-  char_rank: integer(),
+  frequencyRank: integer(),
+  charRank: integer(),
 });
 
 export const char_bank = pgTable("char_bank", {
