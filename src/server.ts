@@ -130,6 +130,28 @@ app.get('/api/search', async (req: Request, res: Response): Promise<any> => {
     }
 });
 
+/**
+ * GET /api/dictionary
+ * Returns paginated dictionary entries with ownership info.
+ */
+app.get('/api/dictionary', async (req: Request, res: Response): Promise<any> => {
+    try {
+        const userId = req.query.userId as string;
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 250;
+
+        if (!userId) {
+            return res.status(400).json({ error: "Missing 'userId' query parameter." });
+        }
+
+        const result = await engine.getDictionaryPage(userId, page, pageSize);
+        return res.json(result);
+    } catch (error) {
+        console.error("[GET /api/dictionary] Error:", error);
+        return res.status(500).json({ error: "Internal server error." });
+    }
+});
+
 // Start the server
 app.listen(PORT, () => {
     console.log(`🚀 Open-Zi API is running on http://localhost:${PORT}`);

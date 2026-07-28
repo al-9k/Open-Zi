@@ -339,7 +339,7 @@ export class DictionaryEngine {
                 eq(user_char_bank.userId, userId)
             ))
             .where(finalWhereCondition)
-            .orderBy(asc(sql`priority`), asc(cedict_entries.frequencyRank))
+            .orderBy(sql`9 asc`, asc(cedict_entries.frequencyRank))
             .limit(50);
 
         // Convert to dictionary format
@@ -349,5 +349,45 @@ export class DictionaryEngine {
         }
 
         return resultDict;
+    }
+
+    async getDictionaryPage(userId: string, page: number = 1, pageSize: number = 250) {
+        const offset = (page - 1) * pageSize;
+
+        const rows = await this.db
+            .select({
+                entry: cedict_entries.entry,
+                pinyin: cedict_entries.pinyin,
+                definition: cedict_entries.definition,
+                hsk: cedict_entries.hsk,
+                charRank: cedict_entries.charRank,
+                type: sql<"c" | "w">`CASE WHEN char_length(${cedict_entries.entry}) > 1 THEN 'w' ELSE 'c' END`,
+                owned: sql<boolean>`CASE WHEN ${user_char_bank.char} IS NOT NULL THEN true ELSE false END`,
+            })
+            .from(cedict_entries)
+            .leftJoin(user_char_bank, and(
+                eq(user_char_bank.char, cedict_entries.entry),
+                eq(user_char_bank.userId, userId)
+            ))
+            .orderBy(asc(cedict_entries.charRank))
+            .limit(pageSize)
+            .offset(offset);
+
+        const totalResult = await this.db
+            .select({ count: sql<number>`count(*)` })
+            .from(cedict_entries);
+
+        const total = totalResult[0]?.count ?? 0;
+
+        return {
+            entries: rows.map((row) => ({
+                ...row,
+                isOwned: row.owned,
+            })),
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize),
+        };
     }
 }
