@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { defineConfig } from 'drizzle-kit';
 
-const localFallbackUrl = 'postgres://postgres:password@localhost:5432/local_db';
+const localFallbackUrl = 'postgres://postgres:password@localhost:5432/local_db'; // fallback
 
 export default defineConfig({
   out: './drizzle',
